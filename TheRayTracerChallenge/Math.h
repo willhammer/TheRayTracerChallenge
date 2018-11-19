@@ -3,7 +3,8 @@
 #include <type_traits>
 #include <limits>
 #include <variant>
-#include <type_traits>
+
+
 namespace Math
 {
     template<typename T> class Tuple4;
@@ -200,7 +201,7 @@ namespace Math
         Point4(const Tuple4<T>& input) : Point4{ 
             H::Get(input, C::X),
             H::Get(input, C::Y),
-            H::Get(input, C::Z) }{ }
+            H::Get(input, C::Z) } { }
     };
 
     template<typename T>
