@@ -24,7 +24,7 @@ namespace Serialization
 	WORLD_OBJECT_CLASS_INIT(C1);
 	WORLD_OBJECT_CLASS_INIT(C2);
 
-	TEST_CLASS(SerializationTest)
+	TEST_CLASS(ClassIDAndObjectIDTest)
 	{
 	public:
 		TEST_METHOD(ClassIDIncrementsProperly)
@@ -74,6 +74,97 @@ namespace Serialization
 
 			Assert::AreEqual(obj21.GetClassID() - obj11.GetClassID(), (size_t)1);
 			Assert::AreEqual(obj22.GetClassID() - obj11.GetClassID(), (size_t)1);
+		}
+	};
+}
+
+namespace Gameplay
+{
+	class Parent1 : public WorldObject
+	{
+		WORLD_OBJECT_BODY
+	};
+
+	class Parent2 : public WorldObject
+	{
+		WORLD_OBJECT_BODY
+	};
+
+	class Child11 : public Parent1
+	{
+		WORLD_OBJECT_BODY
+	};
+
+	class Child12 : public Parent1
+	{
+		WORLD_OBJECT_BODY
+	};
+
+	class Child21 : public Parent2
+	{
+		WORLD_OBJECT_BODY
+	};
+
+	class Child22 : public Parent2
+	{
+		WORLD_OBJECT_BODY
+	};
+
+	WORLD_OBJECT_CLASS_INIT(Parent1);
+	WORLD_OBJECT_CLASS_INIT(Parent2);
+	WORLD_OBJECT_CLASS_INIT(Child11);
+	WORLD_OBJECT_CLASS_INIT(Child12);
+	WORLD_OBJECT_CLASS_INIT(Child21);
+	WORLD_OBJECT_CLASS_INIT(Child22);
+
+	TEST_CLASS(AccessingWorldObjectsFromWorldTest)
+	{	
+
+	public:
+		TEST_METHOD(AddOneObjectInWorld)
+		{
+			World world;
+
+			Child11* object1 = new Child11();
+			World::AddWorldObject(&world, object1);
+			
+			Assert::AreEqual(world.GetNumObjects(), (size_t)1);
+			Assert::AreEqual(world.GetNumObjectsOfType(object1->GetClassID()), (size_t)1);
+		}
+
+		TEST_METHOD(AddTwoObjectsInWorld)
+		{
+			World world;
+
+			Child11* object1 = new Child11();
+			Child21* object2 = new Child21();
+			World::AddWorldObject(&world, object1);
+			World::AddWorldObject(&world, object2);
+
+			Assert::AreEqual(world.GetNumObjects(), (size_t)2);
+			Assert::AreEqual(world.GetNumObjectsOfType(object1->GetClassID()), (size_t)1);
+			Assert::AreEqual(world.GetNumObjectsOfType(object2->GetClassID()), (size_t)1);
+		}
+
+		TEST_METHOD(AddTwoObjectsAndTheirParentsInWorld)
+		{
+			World world;
+
+			Child11* object1 = new Child11();
+			Child21* object2 = new Child21();
+			Parent1* object3 = new Parent1();
+			Parent2* object4 = new Parent2();
+
+			World::AddWorldObject(&world, object1);
+			World::AddWorldObject(&world, object2);
+			World::AddWorldObject(&world, object3);
+			World::AddWorldObject(&world, object4);
+
+			Assert::AreEqual(world.GetNumObjects(), (size_t)4);
+			Assert::AreEqual(world.GetNumObjectsOfType(object1->GetClassID()), (size_t)1);
+			Assert::AreEqual(world.GetNumObjectsOfType(object2->GetClassID()), (size_t)1);
+			Assert::AreEqual(world.GetNumObjectsOfType(object3->GetClassID()), (size_t)1);
+			Assert::AreEqual(world.GetNumObjectsOfType(object4->GetClassID()), (size_t)1);
 		}
 	};
 }
