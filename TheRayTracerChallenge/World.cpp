@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "World.h"
+#include <thread>
+
+
+using namespace std::chrono;
 
 #ifdef _MSC_VER
 #include "CppUnitTest.h"
@@ -78,8 +82,113 @@ namespace Serialization
 	};
 }
 
+namespace
+{
+	void RunPhysicsOnObject(Gameplay::WorldObject* object, const float deltaTime)
+	{
+		//get physics component and do stuff
+	}
+
+	void RunRenderOnObject(Gameplay::WorldObject* object, const float deltaTime)
+	{
+		//get mesh component and do stuff
+	}
+
+	void RunFunctionOnAllObjects(ClassMap& worldObjects, PerObjectFunction perObjectFunction, const float deltaTime)
+	{
+		for (auto& objectMapPair = worldObjects.begin(); objectMapPair != worldObjects.end(); ++objectMapPair)
+		{
+			ObjectMap* objectMap = objectMapPair->second.get();
+			if (objectMap != nullptr)
+			{
+				for (auto& objectPair = objectMap->begin(); objectPair != objectMap->end(); ++objectPair)
+				{
+					Gameplay::WorldObject* object = objectPair->second.get();
+					if (object != nullptr)
+					{
+						perObjectFunction(object, deltaTime);
+					}
+				}
+			}
+		}
+	}
+}
+
 namespace Gameplay
 {
+
+	void World::RunPhysics(float physicsDeltaTime)
+	{
+		RunFunctionOnAllObjects(worldObjects, PerObjectFunction(RunPhysicsOnObject), physicsDeltaTime);
+	}
+
+	void World::RunRender(float renderDeltaTime)
+	{
+		RunFunctionOnAllObjects(worldObjects, PerObjectFunction(RunRenderOnObject), renderDeltaTime);
+	}
+
+	void World::Start()
+	{
+		if (isStarted == true && isPaused == true)
+			isPaused = true;
+
+		if (isStarted == false)
+		{
+			isStarted = true;			
+			Run();
+		}	
+	}
+
+	void World::ForceStop()
+	{
+
+	}
+
+	void World::Stop(bool forced)
+	{
+		if(isStarted == true)
+			isStarted = false;
+
+		if (forced)
+		{
+			ForceStop();
+		}
+	}
+
+	void World::Pause()
+	{
+		isPaused = true;
+	}
+
+	void World::Run()
+	{
+		currentTime = high_resolution_clock::now();
+		deltaTimeAccumulator = 0.0f;
+
+		while (isStarted == true)
+		{
+			TimePoint newTime = high_resolution_clock::now();
+			duration<float> timeSpan = duration_cast<duration<float>>(newTime - currentTime);
+			
+			float frameTime = timeSpan.count();
+
+			if (frameTime > maxFrameTime)
+				frameTime = maxFrameTime;
+
+			deltaTimeAccumulator += frameTime;
+
+			while (deltaTimeAccumulator >= physicsDeltaTime)
+			{
+				RunPhysics(physicsDeltaTime);
+				deltaTimeAccumulator -= physicsDeltaTime;
+			}
+			
+			RunRender(frameTime);			
+		}
+	}
+
+#pragma region WORLD TESTS
+
 	class Parent1 : public WorldObject
 	{
 		WORLD_OBJECT_BODY
@@ -167,5 +276,7 @@ namespace Gameplay
 			Assert::AreEqual(world.GetNumObjectsOfType(object4->GetClassID()), (size_t)1);
 		}
 	};
+
+#pragma endregion
 }
 #endif

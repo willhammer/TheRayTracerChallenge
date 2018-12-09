@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <typeinfo>
 #include <memory>
+#include <chrono>
+#include <functional>
 
 #define WORLD_OBJECT_BODY											\
 private:															\
@@ -32,6 +34,10 @@ using ObjectMapPtr = std::unique_ptr<ObjectMap>;
 using ClassMap = std::map<ClassIDNumber, ObjectMapPtr>;
 using ObjectPtr = std::unique_ptr<Gameplay::WorldObject>;
 
+using TimePoint = std::chrono::high_resolution_clock::time_point;
+
+using PerObjectFunction = std::function<void(Gameplay::WorldObject*, const float)>;
+
 namespace Gameplay
 {
 	class Component
@@ -42,6 +48,9 @@ namespace Gameplay
 	class WorldObject
 	{
 		WORLD_OBJECT_BODY
+
+	public:
+		virtual void Step(float deltaTime) { throw new std::exception("function execution at WorldObject level is not allowed!"); }
 
 	private:
 		std::set<Component> components;
@@ -54,9 +63,51 @@ namespace Gameplay
 		#define Error_ObjectMapNotFound "Object Map not found!"
 		#define Error_ObjectNotFound "Object not found!"
 
+		#define DEFAULT_PHYSICS_DELTA_TIME 0.0333333f
+		#define DEFAULT_MAX_FRAME_TIME 0.25f
+		#define DEFAULT_MIN_FRAME_TIME 0.005f
+
+	private:
+		bool isStarted;		
+		bool isPaused;
+		
+
+		const float minFrameTime;
+		const float maxFrameTime;
+		const float physicsDeltaTime;
+
+		float deltaTimeAccumulator;
+		TimePoint currentTime;
+		
+	public:		
+		World(float setPhysicsDeltaTime, float setMaxFrameTime, float setMinFrameTime) : 
+			physicsDeltaTime{ setPhysicsDeltaTime },
+			maxFrameTime { setMaxFrameTime },
+			minFrameTime { setMinFrameTime}
+		{
+
+		}
+
+		World() :World(DEFAULT_PHYSICS_DELTA_TIME, DEFAULT_MAX_FRAME_TIME, DEFAULT_MIN_FRAME_TIME)
+		{
+
+		}
+
+		void Start();
+		void Stop(bool forced);
+		void Pause();
+
+	private:
+		void ForceStop();
+		void Run();
+		
+		void RunPhysics(float physicsDeltaTime);
+		void RunRender(float renderDeltaTime);
+
 	private:
 		ClassMap worldObjects;
-
+	
+	#pragma region METHODS: OBJECT MANAGEMENT
 	private:
 		void AddWorldObject(WorldObject* object, size_t classID, size_t objectID)
 		{	
@@ -74,12 +125,11 @@ namespace Gameplay
 			}			
 			catch (std::exception* e)
 			{
-
+				printf("%s", e->what());
 			}
 		}
 
-	public:
-
+	public:	
 		template<typename T, typename = std::enable_if_t<std::is_base_of_v<WorldObject, T>>>
 		static void AddWorldObject(World* world, T* object)
 		{
@@ -123,5 +173,14 @@ namespace Gameplay
 
 			return worldObjectOfType->at(objectID);
 		}
+	#pragma endregion
+
+
+	#pragma region METHODS: STEP LOGIC
+
+
+
+	#pragma endregion
+
 	};
 }
