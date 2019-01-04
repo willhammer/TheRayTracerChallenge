@@ -7,16 +7,17 @@
 #endif
 
 
+namespace M = Math;
+using H = Math::Helpers;
+using C = Math::Helpers::Coordinate;
+using CI = Math::Helpers::ColorInput;
+
 namespace Math
 {
-    namespace M = Math;
-    using H = Math::Helpers;
-    using C = Math::Helpers::Coordinate;
-
-
     using Point4f = M::Point4<float>;
     using Vector4f = M::Vector4<float>;
     using Tuple4f = M::Tuple4<float>;
+	using Color4f = M::Color4<float>;
 
     template<typename T>
     constexpr M::Tuple4<T> AddTuples(const M::Tuple4<T>& first, const M::Tuple4<T>& second)
@@ -40,7 +41,7 @@ namespace Math
 
     template<typename T> M::Vector4<T> operator*(const M::Vector4<T>& vector, const T scalar)
     {
-        return Helpers::MakeVector(
+        return H::MakeVector(
                 H::Get(vector, C::X) * scalar,
                 H::Get(vector, C::Y) * scalar,
                 H::Get(vector, C::Z) * scalar);
@@ -48,7 +49,7 @@ namespace Math
 
     template<typename T> M::Vector4<T> operator/(const M::Vector4<T>& vector, const T scalar)
     {
-        return Helpers::MakeVector(
+        return H::MakeVector(
                 H::Get(vector, C::X) / scalar,
                 H::Get(vector, C::Y) / scalar,
                 H::Get(vector, C::Z) / scalar);
@@ -70,28 +71,38 @@ namespace Math
 
     template<typename T> M::Point4<T>  operator+ (const M::Point4<T>& first, const M::Vector4<T>& second)
     {   
-        return Helpers::MakePoint(AddTuples(first, second));
+        return H::MakePoint(AddTuples(first, second));
     }
 
     template<typename T> M::Vector4<T> operator+ (const M::Vector4<T>& first, const M::Vector4<T>& second)
     {
-        return Helpers::MakeVector(AddTuples(first, second));
+        return H::MakeVector(AddTuples(first, second));
     }
+
+	template<typename T> Math::Color4<T> operator+ (const Math::Color4<T>& first, const Math::Color4<T>& second)
+	{
+		return H::MakeColor(AddTuples(first, second));
+	}
 
     template<typename T> M::Point4<T>  operator- (const M::Point4<T>& first, const M::Vector4<T>& second)
     {
-        return Helpers::MakePoint(SubtractTuples(first, second));
+        return H::MakePoint(SubtractTuples(first, second));
     }
 
     template<typename T> M::Vector4<T> operator- (const M::Point4<T>& first, const M::Point4<T>& second)
     {
-        return Helpers::MakeVector(SubtractTuples(first, second));
+        return H::MakeVector(SubtractTuples(first, second));
     }
 
     template<typename T> M::Vector4<T> operator- (const M::Vector4<T>& first, const M::Vector4<T>& second)
     {
-        return Helpers::MakeVector(SubtractTuples(first, second));
+        return H::MakeVector(SubtractTuples(first, second));
     }
+
+	template<typename T> Math::Color4<T> operator- (const Math::Color4<T>& first, const Math::Color4<T>& second)
+	{
+		return H::MakeColor(SubtractTuples(first, second));
+	}
 }
 
 namespace Math
@@ -128,6 +139,11 @@ namespace Math
         return Vector4<T>{ x, y, z, T(0) };
     }
 
+	template<typename T> Color4<T> Helpers::MakeColor(const T& r, const T& g, const T& b, const T& a)
+	{
+		return Color4<T>{ r, g, b, a };
+	}
+
     template<typename T> Point4<T> Helpers::MakePoint(const Tuple4<T>&& tuple)
     {
         return Point4<T>(tuple);
@@ -138,11 +154,17 @@ namespace Math
         return Vector4<T>(tuple);
     }
 
+	template<typename T> Color4<T> Helpers::MakeColor(const Tuple4<T>&& tuple)
+	{
+		return Color4<T>(tuple);
+	}
+
 #pragma endregion
 
 #pragma region Point
     template<typename T>
     Math::Point4<T>::Point4(T x, T y, T z) : Tuple4{ x,y,z,T(1) } {}
+
 #pragma endregion
 
 #pragma region Vector
@@ -185,17 +207,22 @@ namespace Math
     }
 #pragma endregion
 
+#pragma region Color
+
+	template<typename T>
+	Math::Color4<T>::Color4(T r, T g, T b, T a) : Tuple4{r, g, b, a} {};
+
+#pragma endregion
+
 }
 
 #pragma region Math Tests
 #ifdef _MSC_VER
 namespace Math
 {
-    using H = Math::Helpers;
-    using C = Math::Helpers::Coordinate;
-
-    TEST_CLASS(RayTracerTest)
+    TEST_CLASS(MathTest)
     {
+
     public:
 
         TEST_METHOD(AlmostEqualsWorksWithinEpsilon)
@@ -219,11 +246,11 @@ namespace Math
 
         TEST_METHOD(Vector4Addition)
         {
-            auto point = Helpers::MakePoint(1.3f, -2.2f, 4.1f);
-            auto point2 = Helpers::MakePoint(1.3f, -2.2f, 4.1f);
+            auto point = H::MakePoint(1.3f, -2.2f, 4.1f);
+            auto point2 = H::MakePoint(1.3f, -2.2f, 4.1f);
 
-            auto vector = Helpers::MakeVector(2.3f, -5.2f, 3.1f);
-            auto vector2 = Helpers::MakeVector(2.3f, -5.2f, 3.1f);
+            auto vector = H::MakeVector(2.3f, -5.2f, 3.1f);
+            auto vector2 = H::MakeVector(2.3f, -5.2f, 3.1f);
 
             auto additionResult = point + vector;
 
@@ -239,10 +266,10 @@ namespace Math
 
         TEST_METHOD(Vector4ASubtraction)
         {
-            auto point = Helpers::MakePoint(1.3f, -2.2f, 4.1f);
-            auto point2 = Helpers::MakePoint(1.3f, -2.2f, 4.1f);
-            auto vector = Helpers::MakeVector(2.3f, -5.2f, 3.1f);
-            auto vector2 = Helpers::MakeVector(1.5f, 3.3f, 6.3f);
+            auto point = H::MakePoint(1.3f, -2.2f, 4.1f);
+            auto point2 = H::MakePoint(1.3f, -2.2f, 4.1f);
+            auto vector = H::MakeVector(2.3f, -5.2f, 3.1f);
+            auto vector2 = H::MakeVector(1.5f, 3.3f, 6.3f);
 
 
             auto subtractionResults = point - vector;
@@ -263,7 +290,7 @@ namespace Math
 
         TEST_METHOD(Vector4ScalarMultiplicationWorksOnVectors)
         {
-            auto vector = Helpers::MakeVector(0.3f, 5.043f, 83.f);
+            auto vector = H::MakeVector(0.3f, 5.043f, 83.f);
             const auto vectorAfterMultiplication = vector * 2.0f;
 
             vector *= 2.0f;
@@ -279,7 +306,7 @@ namespace Math
 
         TEST_METHOD(Vector4NegationOrInversion)
         {
-            auto vector = Helpers::MakeVector(1.3f, -2.2f, 4.1f);
+            auto vector = H::MakeVector(1.3f, -2.2f, 4.1f);
             auto vectorNegated = vector.GetNegated();
             vector.Negate();
 
@@ -294,7 +321,7 @@ namespace Math
 
         TEST_METHOD(Vector4ScalarDivisionWorksOnVectors)
         {
-            auto vector = Helpers::MakeVector(0.3f, 5.043f, 83.f);
+            auto vector = H::MakeVector(0.3f, 5.043f, 83.f);
             const auto vectorAfterDivision = vector / 2.0f;
 
             vector /= 2.0f;
@@ -310,8 +337,8 @@ namespace Math
 
         TEST_METHOD(Vector4Magnitude)
         {
-            const auto vector = Helpers::MakeVector(0.3f, 5.043f, 83.f);
-            const auto point = Helpers::MakePoint(0.3f, 5.043f, 83.f);
+            const auto vector = H::MakeVector(0.3f, 5.043f, 83.f);
+            const auto point = H::MakePoint(0.3f, 5.043f, 83.f);
 
             float magnitudeSquared = vector.GetMagnitudeSquared();//6914.521849
             Assert::IsTrue(Equalsf(magnitudeSquared, 6914.5218f));
@@ -322,8 +349,8 @@ namespace Math
 
         TEST_METHOD(Vector4Normalization)
         {
-            auto vector = Helpers::MakeVector(0.3f, 5.043f, 83.f);
-            const auto point = Helpers::MakePoint(0.3f, 5.043f, 83.f);
+            auto vector = H::MakeVector(0.3f, 5.043f, 83.f);
+            const auto point = H::MakePoint(0.3f, 5.043f, 83.f);
 
             const auto vectorNormalized = vector.GetNormalized();
             vector.Normalize();
@@ -339,8 +366,8 @@ namespace Math
 
         TEST_METHOD(Vector4Dot)
         {
-            const auto vector1 = Helpers::MakeVector(1.0f, 2.0f, 3.0f);
-            const auto vector2 = Helpers::MakeVector(2.0f, 3.0f, 4.0f);
+            const auto vector1 = H::MakeVector(1.0f, 2.0f, 3.0f);
+            const auto vector2 = H::MakeVector(2.0f, 3.0f, 4.0f);
 
             auto dotResult = vector1.Dot(vector2);
             Assert::AreEqual(dotResult, 20.0f);
@@ -348,19 +375,57 @@ namespace Math
 
         TEST_METHOD(Vector4Cross)
         {
-            const auto vector1 = Helpers::MakeVector(1.0f, 2.0f, 3.0f);
-            const auto vector2 = Helpers::MakeVector(2.0f, 3.0f, 4.0f);
+            const auto vector1 = H::MakeVector(1.0f, 2.0f, 3.0f);
+            const auto vector2 = H::MakeVector(2.0f, 3.0f, 4.0f);
 
             const auto cross12 = vector1.Cross(vector2);
             const auto cross21 = vector2.Cross(vector1);
 
-            const auto expected12 = Helpers::MakeVector(-1.0f, 2.0f, -1.0f);
-            const auto expected21 = Helpers::MakeVector(1.0f, -2.0f, 1.0f);
+            const auto expected12 = H::MakeVector(-1.0f, 2.0f, -1.0f);
+            const auto expected21 = H::MakeVector(1.0f, -2.0f, 1.0f);
 
             Assert::IsTrue(cross12 == expected12);
             Assert::IsTrue(cross21 == expected21);
         }
+
+		TEST_METHOD(Color4Values)
+		{
+			const auto color1 = H::MakeColor(-0.5f, 0.4f, 1.7f, 0.5f);
+			
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::R), -0.5f));
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::G), 0.4f));
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::B), 1.7f));
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::A), 0.5f));
+		}
+
+		TEST_METHOD(Color4Addition)
+		{
+			const auto color1 = H::MakeColor(-0.5f, 0.4f, 1.7f, 0.5f);
+			const auto color2 = H::MakeColor(-0.4f, 0.3f, 1.6f, 0.4f);
+
+			const auto colorAdded = color1 + color2;
+
+			Assert::IsTrue(Equalsf(H::Get(colorAdded, CI::R), -0.9f));
+			Assert::IsTrue(Equalsf(H::Get(colorAdded, CI::G), 0.7f));
+			Assert::IsTrue(Equalsf(H::Get(colorAdded, CI::B), 3.3f));
+			Assert::IsTrue(Equalsf(H::Get(colorAdded, CI::A), 0.9f));
+		}
+
+		TEST_METHOD(Color4Subtraction)
+		{
+			const auto color1 = H::MakeColor(-0.5f, 0.4f, 1.7f, 0.5f);
+			const auto color2 = H::MakeColor(-0.4f, 0.3f, 1.6f, 0.4f);
+
+			const auto colorSubtracted = color1 - color2;
+
+			Assert::IsTrue(Equalsf(H::Get(colorSubtracted, CI::R), -0.1f));
+			Assert::IsTrue(Equalsf(H::Get(colorSubtracted, CI::G), 0.1f));
+			Assert::IsTrue(Equalsf(H::Get(colorSubtracted, CI::B), 0.1f));
+			Assert::IsTrue(Equalsf(H::Get(colorSubtracted, CI::A), 0.1f));
+		}
+
     };
 }
+
 #endif
 #pragma endregion
