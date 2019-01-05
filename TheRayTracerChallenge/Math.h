@@ -111,14 +111,24 @@ namespace Math
 	
 	template<typename T> Math::Vector4<T>	operator*(const Math::Vector4<T>& vector, const T scalar);
 	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
-	template<typename T> Math::Vector4<T>	operator/(const Math::Vector4<T>& vector, const T scalar);
 
+	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color, const T scalar);
+	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
+
+	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color1, const Math::Color4<T>& color2);
+	template<typename T> void				operator*= (Math::Color4<T>& color, const Math::Color4<T>& colorOther);
+
+	template<typename T> Math::Vector4<T>	operator/(const Math::Vector4<T>& vector, const T scalar);
 	template<typename T> void				operator/= (Math::Vector4<T>& vector, const T scalar);
+
+	template<typename T> Math::Color4<T>	operator/(const Math::Color4<T>& color, const T scalar);
+	template<typename T> void				operator/= (Math::Color4<T>& color, const T scalar);
+
 	
 	template<typename T> Math::Point4<T>	operator+ (const Math::Point4<T>& first, const Math::Vector4<T>& second);
 	template<typename T> Math::Vector4<T>	operator+ (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
 	template<typename T> Math::Color4<T>	operator+ (const Math::Color4<T>& first, const Math::Color4<T>& second);
-	
+		
 	template<typename T> Math::Point4<T>	operator- (const Math::Point4<T>& first, const Math::Vector4<T>& second);
 	template<typename T> Math::Vector4<T>	operator- (const Math::Point4<T>& first, const Math::Point4<T>& second);
 	template<typename T> Math::Vector4<T>	operator- (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
@@ -204,8 +214,6 @@ namespace Math
 			Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
 			Math::Helpers::Get(input, Math::Helpers::Coordinate::Y),
 			Math::Helpers::Get(input, Math::Helpers::Coordinate::Z) } { }
-
-
 	public:
 		Point4() : Point4(T{ 0 }, T{ 0 }, T{ 0 }) {};
 	};
@@ -238,10 +246,10 @@ namespace Math
 	template<typename T>
 	class Color4 : public Tuple4<T>
 	{
+	private:
 		friend class Helpers;
 		using Tuple4::Tuple4;
 
-	private:
 		Color4(T r, T g, T b, T a);
 		Color4(const Tuple4<T>& input) : Color4{
 			Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
@@ -250,7 +258,8 @@ namespace Math
 			Math::Helpers::Get(input, Math::Helpers::Coordinate::W) } { }
 
 	public:
-		Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }) {};
+		Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }) {};		
+		inline constexpr void Hadamard(const Color4<T>& other); /*Color * Color multiplication*/
 	};
 }
 

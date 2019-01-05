@@ -14,60 +14,106 @@ using CI = Math::Helpers::ColorInput;
 
 namespace Math
 {
-    using Point4f = M::Point4<float>;
-    using Vector4f = M::Vector4<float>;
-    using Tuple4f = M::Tuple4<float>;
+	using Point4f = M::Point4<float>;
+	using Vector4f = M::Vector4<float>;
+	using Tuple4f = M::Tuple4<float>;
 	using Color4f = M::Color4<float>;
 
-    template<typename T>
-    constexpr M::Tuple4<T> AddTuples(const M::Tuple4<T>& first, const M::Tuple4<T>& second)
-    {
-        return M::Tuple4<T> {
-                H::Get(first, C::X) + H::Get(second, C::X),
-                H::Get(first, C::Y) + H::Get(second, C::Y),
-                H::Get(first, C::Z) + H::Get(second, C::Z),
-                H::Get(first, C::W) + H::Get(second, C::W) };
-    }
+	template<typename T>
+	constexpr M::Tuple4<T> AddTuples(const M::Tuple4<T>& first, const M::Tuple4<T>& second)
+	{
+		return M::Tuple4<T> {
+			H::Get(first, C::X) + H::Get(second, C::X),
+				H::Get(first, C::Y) + H::Get(second, C::Y),
+				H::Get(first, C::Z) + H::Get(second, C::Z),
+				H::Get(first, C::W) + H::Get(second, C::W) };
+	}
 
-    template<typename T>
-    constexpr M::Tuple4<T> SubtractTuples(const M::Tuple4<T>& first, const M::Tuple4<T>& second)
-    {
-        return M::Tuple4<T> {
-                H::Get(first, C::X) - H::Get(second, C::X),
-                H::Get(first, C::Y) - H::Get(second, C::Y),
-                H::Get(first, C::Z) - H::Get(second, C::Z),
-                H::Get(first, C::W) - H::Get(second, C::W)};
-    }
+	template<typename T>
+	constexpr M::Tuple4<T> SubtractTuples(const M::Tuple4<T>& first, const M::Tuple4<T>& second)
+	{
+		return M::Tuple4<T> {
+			H::Get(first, C::X) - H::Get(second, C::X),
+				H::Get(first, C::Y) - H::Get(second, C::Y),
+				H::Get(first, C::Z) - H::Get(second, C::Z),
+				H::Get(first, C::W) - H::Get(second, C::W)};
+	}
 
-    template<typename T> M::Vector4<T> operator*(const M::Vector4<T>& vector, const T scalar)
-    {
-        return H::MakeVector(
-                H::Get(vector, C::X) * scalar,
-                H::Get(vector, C::Y) * scalar,
-                H::Get(vector, C::Z) * scalar);
-    }
+	template<typename T>
+	constexpr void MultiplyTupleByScalar(M::Tuple4<T>& tuple, const T scalar)
+	{
+		H::Set(tuple, C::X, H::Get(tuple, C::X) * scalar);
+		H::Set(tuple, C::Y, H::Get(tuple, C::Y) * scalar);
+		H::Set(tuple, C::Z, H::Get(tuple, C::Z) * scalar);
+	}
 
-    template<typename T> M::Vector4<T> operator/(const M::Vector4<T>& vector, const T scalar)
-    {
-        return H::MakeVector(
-                H::Get(vector, C::X) / scalar,
-                H::Get(vector, C::Y) / scalar,
-                H::Get(vector, C::Z) / scalar);
-    }
+	template<typename T>
+	constexpr void DivideTupleByScalar(M::Tuple4<T>& tuple, const T scalar)
+	{
+		H::Set(tuple, C::X, H::Get(tuple, C::X) / scalar);
+		H::Set(tuple, C::Y, H::Get(tuple, C::Y) / scalar);
+		H::Set(tuple, C::Z, H::Get(tuple, C::Z) / scalar);
+	}
 
-    template<typename T> void operator*= (M::Vector4<T>& vector, const T scalar)
-    {
-        H::Set(vector, C::X, H::Get(vector, C::X) * scalar);
-        H::Set(vector, C::Y, H::Get(vector, C::Y) * scalar);
-        H::Set(vector, C::Z, H::Get(vector, C::Z) * scalar);
-    }
+	template<typename T> M::Vector4<T> operator*(const M::Vector4<T>& vector, const T scalar)
+	{
+		M::Vector4<T> retVal = vector;
+		MultiplyTupleByScalar(retVal, scalar);
+		return retVal;
+	}
+
+	template<typename T> M::Color4<T> operator*(const M::Color4<T>& color, const T scalar)
+	{
+		M::Color4<T> retVal = color;
+		MultiplyTupleByScalar(retVal, scalar);
+		return retVal;
+	}
+
+	template<typename T> Math::Color4<T> operator*(const Math::Color4<T>& color1, const Math::Color4<T>& color2)
+	{
+		Color4<T> retVal = color1;
+		retVal.Hadamard(color2);
+		return retVal;
+	}
+
+	template<typename T> M::Vector4<T> operator/(const M::Vector4<T>& vector, const T scalar)
+	{
+		M::Vector4<T> retVal = vector;
+		DivideTupleByScalar(retVal, scalar);
+		return retVal;
+	}
+
+	template<typename T> M::Color4<T> operator/(const M::Color4<T>& color, const T scalar)
+	{
+		M::Color4<T> retVal = color;
+		DivideTupleByScalar(retVal, scalar);
+		return retVal;
+	}
+
+	template<typename T> void operator*=(M::Vector4<T>& vector, const T scalar)
+	{
+		MultiplyTupleByScalar(vector, scalar);
+	}
+
+	template<typename T> void operator*=(M::Color4<T>& color, const T scalar)
+	{
+		MultiplyTupleByScalar(color, scalar);
+	}
+
+	template<typename T> void operator*= (Math::Color4<T>& color, const Math::Color4<T>& colorOther)
+	{
+		color.Hadamard(colorOther);
+	}
 
     template<typename T> void operator/=(M::Vector4<T>& vector, const T scalar)
     {
-        H::Set(vector, C::X, H::Get(vector, C::X) / scalar);
-        H::Set(vector, C::Y, H::Get(vector, C::Y) / scalar);
-        H::Set(vector, C::Z, H::Get(vector, C::Z) / scalar);
+		DivideTupleByScalar(vector, scalar);
     }
+
+	template<typename T> void operator/=(M::Color4<T>& color, const T scalar)
+	{
+		DivideTupleByScalar(color, scalar);
+	}
 
     template<typename T> M::Point4<T>  operator+ (const M::Point4<T>& first, const M::Vector4<T>& second)
     {   
@@ -211,6 +257,15 @@ namespace Math
 
 	template<typename T>
 	Math::Color4<T>::Color4(T r, T g, T b, T a) : Tuple4{r, g, b, a} {};
+
+	template<typename T> constexpr void Math::Color4<T>::Hadamard(const Color4<T>& other)
+	{
+		this->x *= H::Get(other, CI::R);
+		this->y *= H::Get(other, CI::G);
+		this->z *= H::Get(other, CI::B);
+		this->w *= H::Get(other, CI::A);
+	}
+
 
 #pragma endregion
 
@@ -424,6 +479,50 @@ namespace Math
 			Assert::IsTrue(Equalsf(H::Get(colorSubtracted, CI::A), 0.1f));
 		}
 
+		TEST_METHOD(Color4ScalarMultiplication)
+		{
+			const auto color1 = H::MakeColor(-0.5f, 0.4f, 1.7f, 0.5f);
+			const auto multiplier = 2.0f;
+
+			const auto colorMultiplied = color1 * multiplier;
+
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::R), -1.0f));
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::G), 0.8f));
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::B), 3.4f));
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::A), 0.5f));
+		}
+
+		TEST_METHOD(Color4ScalarDivision)
+		{
+			const auto color1 = H::MakeColor(-0.6f, 0.4f, 2.0f, 0.6f);
+			const auto divider = 2.0f;
+
+			const auto colorDivided = color1 / divider;
+
+			Assert::IsTrue(Equalsf(H::Get(colorDivided, CI::R), -0.3f));
+			Assert::IsTrue(Equalsf(H::Get(colorDivided, CI::G), 0.2f));
+			Assert::IsTrue(Equalsf(H::Get(colorDivided, CI::B), 1.0f));
+			Assert::IsTrue(Equalsf(H::Get(colorDivided, CI::A), 0.6f));
+		}
+
+		TEST_METHOD(Color4Color4Multiplication)
+		{
+				  auto color1 = H::MakeColor(-0.5f, 0.4f, 1.7f, 0.5f);
+			const auto color2 = H::MakeColor(-0.4f, 0.3f, 1.6f, 0.4f);
+
+			const auto colorMultiplied = color1 * color2;
+			color1 *= color2;
+
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::R), 0.2f));
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::G), 0.12f));
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::B), 2.72f));
+			Assert::IsTrue(Equalsf(H::Get(colorMultiplied, CI::A), 0.2f));
+
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::R), 0.2f));
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::G), 0.12f));
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::B), 2.72f));
+			Assert::IsTrue(Equalsf(H::Get(color1, CI::A), 0.2f));
+		}
     };
 }
 
