@@ -258,7 +258,7 @@ namespace Math
 			Math::Helpers::Get(input, Math::Helpers::Coordinate::W) } { }
 
 	public:
-		Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }) {};		
+		Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }, T{ 0.5 }) {};
 		inline constexpr void Hadamard(const Color4<T>& other); /*Color * Color multiplication*/
 	};
 }

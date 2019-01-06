@@ -7,8 +7,6 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #endif
 
-using namespace Math;
-
 namespace Gameplay
 {
 	void Projectile::Tick(const Environment& env, const Vector4f setVelocity)
@@ -37,32 +35,32 @@ namespace Gameplay
 			
 			Vector4f setVelocity;			
 			projectile.Tick(env, setVelocity);
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::X), 0.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::Y), 0.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::Z), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::X), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::Y), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::Z), 0.0f));
 			
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::X), 0.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::Y), 0.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::Z), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::X), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::Y), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::Z), 0.0f));
 			
 			setVelocity = H::MakeVector(3.0f, 4.0f, 5.0f);
 			projectile.Tick(env, setVelocity);
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::X), 0.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::Y), 0.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::Z), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::X), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::Y), 0.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::Z), 0.0f));
 
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::X), 3.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::Y), 4.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::Z), 5.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::X), 3.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::Y), 4.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::Z), 5.0f));
 
 			projectile.Tick(env, setVelocity);
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::X), 3.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::Y), 4.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.position, C::Z), 5.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::X), 3.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::Y), 4.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.position, C::Z), 5.0f));
 
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::X), 3.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::Y), 4.0f));
-			Assert::IsTrue(Math::Equals(H::Get(projectile.velocity, C::Z), 5.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::X), 3.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::Y), 4.0f));
+			Assert::IsTrue(M::Equals(H::Get(projectile.velocity, C::Z), 5.0f));
 		}
 	};
 }
