@@ -2,11 +2,73 @@
 #include "Graphics.h"
 
 #include <sstream>
+#include <array>
 
 #ifdef _MSC_VER
 #include "CppUnitTest.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #endif
+
+namespace
+{
+	template<typename T>
+	int GetIntValue(const int maxIntValue, T value)
+	{
+		static T zero = static_cast<T>(0);
+		static T one = static_cast<T>(1);
+		static T max = static_cast<T>(maxIntValue);
+
+		if (value < zero)
+			value = zero;
+		
+		if (value > one)
+			value = one;
+
+		return int(value * max);
+	}
+
+	template<typename T>
+	std::array<int, 3> GetIntColor(const int maxIntValue, const M::Color4<T> color)
+	{
+		std::array<int, 3> colorInt;
+
+		auto colorElem = H::Get(color, CI::R);
+		colorInt.at(0) = GetIntValue<T>(maxIntValue, colorElem);
+
+		colorElem = H::Get(color, CI::G);
+		colorInt.at(1) = GetIntValue<T>(maxIntValue, colorElem);
+		
+		colorElem = H::Get(color, CI::B);
+		colorInt.at(2) = GetIntValue<T>(maxIntValue, colorElem);
+
+		return colorInt;
+	}
+	
+	int GetIntPrintSize(const int value, const bool firstElement)
+	{
+		//adding the space that comes before the number
+		if (value >= 100)
+			return firstElement ? 3 : 4;
+
+		if (value >= 10)
+			return firstElement ? 2 : 3;
+
+		return firstElement ? 1 : 2;
+	}
+	
+	std::vector<std::string> ReadStreamLines(std::stringstream& stream)
+	{
+		std::vector<std::string> lines;
+
+		std::string line;
+		while (std::getline(stream, line))
+		{
+			lines.push_back(line);
+		}
+
+		return lines;
+	}
+}
 
 namespace Graphics
 {
@@ -15,6 +77,7 @@ namespace Graphics
 	Canvas::Canvas(size_t setWidth, size_t setHeight) : width{ setWidth }, height{ setHeight }
 	{
 		contents.resize(width * height);
+		maxValue = 255;
 	}
 
 	Color4f Canvas::GetAt(size_t line, size_t column)
@@ -45,13 +108,37 @@ namespace Graphics
 		snprintf(buff, sizeof(buff), "%zd %zd", width, height);
 		ofs << buff << std::endl;
 
-		snprintf(buff, sizeof(buff), "255");
+		snprintf(buff, sizeof(buff), "%d", maxValue);
 		ofs << buff << std::endl;
 	}
 
 	void Canvas::WritePPMBody(std::ostream& ofs)
 	{
+		const int maxCharactersPerLine = 70;
+		
+		int charactersOnCurrentLine = 0;
 
+		for (size_t i = 0; i < contents.size(); ++i)
+		{
+			auto& colorT = contents.at(i);
+			auto colorInt = GetIntColor(maxValue, colorT);
+
+			int currentPrintSize = 0;
+
+			for (int value : colorInt)
+			{
+				bool firstElement = charactersOnCurrentLine == 0;
+				currentPrintSize = GetIntPrintSize(value, firstElement);
+				if (charactersOnCurrentLine + currentPrintSize > maxCharactersPerLine)
+				{
+					ofs << std::endl;
+					charactersOnCurrentLine = 0;
+				}
+
+				firstElement ? ofs << value : ofs << " " <<value;
+				charactersOnCurrentLine += currentPrintSize;
+			}
+		}
 	}
 
 	std::vector<std::string> Canvas::ReadPPMHeaderRaw(std::istream& ifs)
@@ -70,6 +157,19 @@ namespace Graphics
 		return header;
 	}
 
+	std::vector<std::string> Canvas::ReadPPMBodyRaw(std::istream& ifs)
+	{
+		std::vector<std::string> bodyLines;
+		std::string line;
+
+		while (std::getline(ifs, line))
+		{
+			bodyLines.push_back(line);
+		}
+
+		return bodyLines;
+	}
+
 	void Canvas::GetPPMHeaderInfo(std::istream& ifs)
 	{
 		std::vector<std::string> headerLines = ReadPPMHeaderRaw(ifs);
@@ -85,7 +185,7 @@ namespace Graphics
 
 	void Canvas::GetPPMBodyData(std::istream& ifs)
 	{
-
+		
 	}
 
 	void Canvas::WritePPMFile()
@@ -111,11 +211,7 @@ namespace Graphics
 #ifdef _MSC_VER
 namespace Graphics
 {
-	namespace M = Math;
-	using H = M::Helpers;
-	using C = M::Helpers::Coordinate;
-	using CI = M::Helpers::ColorInput;
-	using Tuple4f = M::Tuple4<float>;
+	
 	
 	TEST_CLASS(GraphicsTest)
 	{
@@ -210,6 +306,29 @@ namespace Graphics
 
 			Assert::AreEqual(readerCanvas.width, width);
 			Assert::AreEqual(readerCanvas.height, height);
+		}
+
+		TEST_METHOD(WritingPPMFileBody)
+		{
+			size_t width = 10;
+			size_t height = 5;
+
+			size_t maxLineLength = 70;
+
+			Canvas c{ width, height };
+			c.SetAt(0, 0, H::MakeColor(Tuple4f{ 1.5f, 0.0f, 0.0f, 0.5f }));
+			c.SetAt(2, 1, H::MakeColor(Tuple4f{ 0.0f, 0.5f, 0.0f, 0.5f }));
+			c.SetAt(4, 2, H::MakeColor(Tuple4f{ -0.5f, 0.0f, 1.0f, 0.5f }));
+			
+			std::stringstream stream;
+			c.WritePPMBody(stream);
+			std::vector<std::string> writtenLines = c.ReadPPMBodyRaw(stream);
+
+			for(const auto& line : writtenLines)
+			{
+				auto length = line.length();
+				Assert::IsTrue(length <= maxLineLength);
+			}
 		}
 	};
 }
