@@ -20,7 +20,6 @@ using CI = Math::Helpers::ColorInput;
 
 namespace Graphics
 {
-
 	class Canvas
 	{
 		friend class GraphicsTest;

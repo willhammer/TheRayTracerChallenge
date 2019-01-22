@@ -55,19 +55,22 @@ namespace
 
 		return firstElement ? 1 : 2;
 	}
-	
-	std::vector<std::string> ReadStreamLines(std::stringstream& stream)
-	{
-		std::vector<std::string> lines;
 
-		std::string line;
-		while (std::getline(stream, line))
+	std::vector<std::string> ReadLineValues(std::string& lineString)
+	{
+		std::vector<std::string> values;		
+		std::string value;
+		std::stringstream ss;
+		ss << lineString;
+
+		while (std::getline(ss, value, ' '))
 		{
-			lines.push_back(line);
+			values.push_back(value);
 		}
 
-		return lines;
+		return values;
 	}
+
 }
 
 namespace Graphics
@@ -82,8 +85,6 @@ namespace Graphics
 
 	Color4f Canvas::GetAt(size_t line, size_t column)
 	{
-		//how do I properly assert on the size of line and column? 
-		//I cannot statically check this, so I can't use enable_if, nor static_assert
 		return contents.at(line * width + column);
 	}
 
@@ -126,17 +127,19 @@ namespace Graphics
 			int currentPrintSize = 0;
 
 			for (int value : colorInt)
-			{
+			{	
 				bool firstElement = charactersOnCurrentLine == 0;
 				currentPrintSize = GetIntPrintSize(value, firstElement);
+								
 				if (charactersOnCurrentLine + currentPrintSize > maxCharactersPerLine)
 				{
 					ofs << std::endl;
 					charactersOnCurrentLine = 0;
 				}
-
-				firstElement ? ofs << value : ofs << " " <<value;
+				
+				firstElement = charactersOnCurrentLine == 0;
 				charactersOnCurrentLine += currentPrintSize;
+				firstElement ? ofs << value : ofs << " " << value;
 			}
 		}
 	}
@@ -185,7 +188,38 @@ namespace Graphics
 
 	void Canvas::GetPPMBodyData(std::istream& ifs)
 	{
+		std::string line;
+		std::string currentNumberAsString;
+		unsigned char countValues = 0;
+		static const int maxCountValues = 3;
+		size_t index = 0;
 		
+		std::vector<std::string> lines = ReadPPMBodyRaw(ifs);		
+		M::Tuple4<float> colorContents(0.0f, 0.0f, 0.0f, 0.5f);
+		
+		for (auto& line : lines)
+		{
+			std::vector<std::string> values = ReadLineValues(line);
+			for (std::string& valueString : values)
+			{
+				float value = std::stof(valueString.c_str());
+				value = value / maxValue;
+				if (value < 0.0f) value = 0.0f;
+				if (value > 1.0f) value = 1.0f;
+
+				H::Set(colorContents, CI(countValues), value);
+				++countValues;
+
+				if (countValues == maxCountValues)
+				{
+					countValues = 0;
+					contents.at(index) = H::MakeColor<float>(colorContents);
+					++index;
+				}
+			}
+		}
+
+		auto a = index;
 	}
 
 	void Canvas::WritePPMFile()
@@ -308,7 +342,7 @@ namespace Graphics
 			Assert::AreEqual(readerCanvas.height, height);
 		}
 
-		TEST_METHOD(WritingPPMFileBody)
+		TEST_METHOD(WritingPPMFileBody_MaxLength)
 		{
 			size_t width = 10;
 			size_t height = 5;
@@ -322,13 +356,50 @@ namespace Graphics
 			
 			std::stringstream stream;
 			c.WritePPMBody(stream);
-			std::vector<std::string> writtenLines = c.ReadPPMBodyRaw(stream);
+			
+			Canvas newCanvas{ width, height };
+			
+			std::vector<std::string> writtenLines = newCanvas.ReadPPMBodyRaw(stream);
+			
+			auto size = writtenLines.size();
+			Assert::IsTrue(size == 5);
 
 			for(const auto& line : writtenLines)
 			{
 				auto length = line.length();
 				Assert::IsTrue(length <= maxLineLength);
 			}
+		}
+
+		TEST_METHOD(ReadingPPMFileBody)
+		{
+			size_t width = 10;
+			size_t height = 5;
+
+			size_t maxLineLength = 70;
+
+			Canvas c{ width, height };
+			c.SetAt(0, 0, H::MakeColor(Tuple4f{ 1.5f, 0.0f, 0.0f, 0.5f }));
+			c.SetAt(2, 1, H::MakeColor(Tuple4f{ 0.0f, 0.5f, 0.0f, 0.5f }));
+			c.SetAt(4, 2, H::MakeColor(Tuple4f{ -0.5f, 0.0f, 1.0f, 0.5f }));
+
+			std::stringstream stream;
+			c.WritePPMBody(stream);
+			
+			Canvas newCanvas{ width, height };
+			newCanvas.GetPPMBodyData(stream);
+			
+			auto& first = newCanvas.GetAt(0, 0);
+			auto second = H::MakeColor(1.0f, 0.0f, 0.0f, 0.5f);
+			Assert::IsTrue(first == second);
+
+			first = newCanvas.GetAt(2, 1);
+			second = H::MakeColor(0.0f, 0.5f, 0.0f, 0.5f);
+			Assert::IsTrue(first == second);
+			
+			first = newCanvas.GetAt(4, 2);
+			second = H::MakeColor(0.0f, 0.0f, 1.0f, 0.5f);
+			Assert::IsTrue(first == second);
 		}
 	};
 }

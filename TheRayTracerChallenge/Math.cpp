@@ -190,21 +190,20 @@ namespace Math
 		return Color4<T>{ r, g, b, a };
 	}
 
-    template<typename T> Point4<T> Helpers::MakePoint(const Tuple4<T>&& tuple)
+    template<typename T> Point4<T> Helpers::MakePoint(const Tuple4<T>& tuple)
     {
         return Point4<T>(tuple);
     }
 
-    template<typename T> Vector4<T> Helpers::MakeVector(const Tuple4<T>&& tuple)
+    template<typename T> Vector4<T> Helpers::MakeVector(const Tuple4<T>& tuple)
     {
         return Vector4<T>(tuple);
     }
 
-	template<typename T> Color4<T> Helpers::MakeColor(const Tuple4<T>&& tuple)
+	template<typename T> Color4<T> Helpers::MakeColor(const Tuple4<T>& tuple)
 	{
 		return Color4<T>(tuple);
 	}
-
 #pragma endregion
 
 #pragma region Point

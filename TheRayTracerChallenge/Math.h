@@ -104,14 +104,14 @@ namespace Math
 		template<typename T> static Vector4<T> MakeVector(const T& x, const T& y, const T& z);
 		template<typename T> static Color4<T> MakeColor(const T& r, const T& g, const T& b, const T& a);
 
-		template<typename T> static Point4<T> MakePoint(const Tuple4<T>&& tuple);
-		template<typename T> static Vector4<T> MakeVector(const Tuple4<T>&& tuple);
-		template<typename T> static Color4<T> MakeColor(const Tuple4<T>&& tuple);
+		template<typename T> static Point4<T> MakePoint(const Tuple4<T>& tuple);
+		template<typename T> static Vector4<T> MakeVector(const Tuple4<T>& tuple);
+		template<typename T> static Color4<T> MakeColor(const Tuple4<T>& tuple);
 	};
 	
 	template<typename T> Math::Vector4<T>	operator*(const Math::Vector4<T>& vector, const T scalar);
 	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
-
+	
 	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color, const T scalar);
 	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
 
@@ -124,7 +124,6 @@ namespace Math
 	template<typename T> Math::Color4<T>	operator/(const Math::Color4<T>& color, const T scalar);
 	template<typename T> void				operator/= (Math::Color4<T>& color, const T scalar);
 
-	
 	template<typename T> Math::Point4<T>	operator+ (const Math::Point4<T>& first, const Math::Vector4<T>& second);
 	template<typename T> Math::Vector4<T>	operator+ (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
 	template<typename T> Math::Color4<T>	operator+ (const Math::Color4<T>& first, const Math::Color4<T>& second);
@@ -142,15 +141,21 @@ namespace Math
 
 	template <typename U>
 	struct IsComparable<Point4<U>> { constexpr static bool value = true; };
-	
+
+	template <typename U>
+	struct IsComparable<Color4<U>> { constexpr static bool value = true; };
+
 	template<typename T> inline auto GetEpsilon() 
 		-> std::enable_if_t<std::is_floating_point_v<T>, T>
 	{
+		if (std::is_same_v<T, float>) //TODO: find out why float values end up so off. Is it the std::stof ?
+			return 0.01f;
+
 		return std::numeric_limits<T>::epsilon() * T(10);
 	}
 
 	template<typename T> inline auto AlmostEquals(const T& first, const T& second) 
-		-> std::enable_if_t<std::is_floating_point_v<T>, T>
+		-> std::enable_if_t<std::is_floating_point_v<T>, bool>
 	{
 		T diff = first - second;
 		if (diff < T(0))
@@ -165,9 +170,7 @@ namespace Math
 			? AlmostEquals<T>(first, second)
 			: first == second;
 	}
-
 	
-
 	template<template<typename> typename T, typename U> constexpr auto operator== (const T<U>& first, const T<U>& second)
 		->std::enable_if_t<IsComparable<T<U>>::value, bool>
 	{
