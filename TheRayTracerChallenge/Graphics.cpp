@@ -117,8 +117,7 @@ namespace Graphics
 
 	void Canvas::WritePPMBody(std::ostream& ofs)
 	{
-		const int maxCharactersPerLine = 70;
-		
+		const int maxCharactersPerLine = 70;		
 		int charactersOnCurrentLine = 0;
 
 		for (size_t i = 0; i < contents.size(); ++i)
@@ -137,13 +136,15 @@ namespace Graphics
 				{
 					ofs << std::endl;
 					charactersOnCurrentLine = 0;
+					firstElement = true;
 				}
-				
-				firstElement = charactersOnCurrentLine == 0;
+								
 				charactersOnCurrentLine += currentPrintSize;
 				firstElement ? ofs << value : ofs << " " << value;
 			}
 		}
+		
+		ofs << '\n';
 	}
 
 	std::vector<std::string> Canvas::ReadPPMHeaderRaw(std::istream& ifs)
@@ -169,7 +170,8 @@ namespace Graphics
 
 		while (std::getline(ifs, line))
 		{
-			bodyLines.push_back(line);
+			if(!line.empty())
+				bodyLines.push_back(line);
 		}
 
 		return bodyLines;
@@ -373,6 +375,26 @@ namespace Graphics
 				auto length = line.length();
 				Assert::IsTrue(length <= maxLineLength);
 			}
+		}
+
+		TEST_METHOD(WritingPPMFileBody_LastCharacterIsNewline)
+		{
+			size_t width = 2;
+			size_t height = 3;
+
+			size_t maxLineLength = 70;
+
+			Canvas c{ width, height };
+			c.SetAt(0, 0, H::MakeColor(Tuple4f{ 1.5f, 0.0f, 0.0f, 0.5f }));
+			c.SetAt(1, 1, H::MakeColor(Tuple4f{ 0.0f, 0.5f, 0.0f, 0.5f }));
+			c.SetAt(1, 2, H::MakeColor(Tuple4f{ -0.5f, 0.0f, 1.0f, 0.5f }));
+
+			std::stringstream stream;
+			c.WritePPMBody(stream);
+
+			std::string streamContents = stream.str();
+			const char lastChar = streamContents.back();
+			Assert::IsTrue(lastChar == '\n');
 		}
 
 		TEST_METHOD(ReadingPPMFileBody_LostPrecision)
