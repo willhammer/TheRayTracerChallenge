@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <limits>
 #include <variant>
-
+#include <ctype.h>
 
 namespace Math
 {
@@ -148,9 +148,6 @@ namespace Math
 	template<typename T> inline auto GetEpsilon() 
 		-> std::enable_if_t<std::is_floating_point_v<T>, T>
 	{
-		if (std::is_same_v<T, float>) //TODO: find out why float values end up so off. Is it the std::stof ?
-			return 0.01f;
-
 		return std::numeric_limits<T>::epsilon() * T(10);
 	}
 
@@ -179,14 +176,6 @@ namespace Math
 			Equals<U>(Math::Helpers::Get(first, Math::Helpers::Coordinate::Y), Math::Helpers::Get(second, Math::Helpers::Coordinate::Y)) &&
 			Equals<U>(Math::Helpers::Get(first, Math::Helpers::Coordinate::Z), Math::Helpers::Get(second, Math::Helpers::Coordinate::Z));
 	}
-}
-
-namespace Math
-{
-	template<typename T> class Tuple;
-	template<typename T> class Vector4;
-	template<typename T> class Point4;
-	template<typename T> class Color4;
 	
 	/* Y is up, Z points away from the camera */
 	template<typename T>
@@ -264,5 +253,28 @@ namespace Math
 		Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }, T{ 0.5 }) {};
 		inline constexpr void Hadamard(const Color4<T>& other); /*Color * Color multiplication*/
 	};
+
+
+	template<typename T>
+	T GetValueFromString(std::string valueAsString, size_t maxFractionDigits)
+	{
+		//implemented this because std::stof puts out values with unacceptable precision
+
+
+		std::stringstream ss;
+		ss << valueAsString;
+
+		std::string integer;
+		std::getline(ss, integer, '.');
+
+
+
+		const char* stringContents = valueAsString.c_str();
+		for (auto& singleChar : stringContents)
+		{
+			if(isdigit(singleChar))
+				std::to_integer()
+		}
+	}
 }
 

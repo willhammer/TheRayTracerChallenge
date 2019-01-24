@@ -4,6 +4,8 @@
 #include <sstream>
 #include <array>
 
+#include <iomanip>
+
 #ifdef _MSC_VER
 #include "CppUnitTest.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -202,7 +204,9 @@ namespace Graphics
 			std::vector<std::string> values = ReadLineValues(line);
 			for (std::string& valueString : values)
 			{
-				float value = std::stof(valueString.c_str());
+				int valueInt = std::stoi(valueString);
+				float value = static_cast<float>(valueInt);
+
 				value = value / maxValue;
 				if (value < 0.0f) value = 0.0f;
 				if (value > 1.0f) value = 1.0f;
@@ -371,6 +375,28 @@ namespace Graphics
 			}
 		}
 
+		TEST_METHOD(ReadingPPMFileBody_LostPrecision)
+		{
+			size_t width = 10;
+			size_t height = 5;
+
+			size_t maxLineLength = 70;
+
+			Canvas c{ width, height };
+			c.SetAt(2, 1, H::MakeColor(Tuple4f{ 0.0f, 0.5f, 0.0f, 0.5f }));
+
+			std::stringstream stream;
+			c.WritePPMBody(stream);
+
+			Canvas newCanvas{ width, height };
+			newCanvas.GetPPMBodyData(stream);
+			
+			//when converting and storing values to integers, precision is lost
+			auto& first = newCanvas.GetAt(2, 1);
+			auto second = H::MakeColor(0.0f, 0.498039f, 0.0f, 0.5f);
+			Assert::IsTrue(first == second);
+		}
+
 		TEST_METHOD(ReadingPPMFileBody)
 		{
 			size_t width = 10;
@@ -379,8 +405,7 @@ namespace Graphics
 			size_t maxLineLength = 70;
 
 			Canvas c{ width, height };
-			c.SetAt(0, 0, H::MakeColor(Tuple4f{ 1.5f, 0.0f, 0.0f, 0.5f }));
-			c.SetAt(2, 1, H::MakeColor(Tuple4f{ 0.0f, 0.5f, 0.0f, 0.5f }));
+			c.SetAt(0, 0, H::MakeColor(Tuple4f{ 1.5f, 0.0f, 0.0f, 0.5f }));			
 			c.SetAt(4, 2, H::MakeColor(Tuple4f{ -0.5f, 0.0f, 1.0f, 0.5f }));
 
 			std::stringstream stream;
@@ -393,10 +418,6 @@ namespace Graphics
 			auto second = H::MakeColor(1.0f, 0.0f, 0.0f, 0.5f);
 			Assert::IsTrue(first == second);
 
-			first = newCanvas.GetAt(2, 1);
-			second = H::MakeColor(0.0f, 0.5f, 0.0f, 0.5f);
-			Assert::IsTrue(first == second);
-			
 			first = newCanvas.GetAt(4, 2);
 			second = H::MakeColor(0.0f, 0.0f, 1.0f, 0.5f);
 			Assert::IsTrue(first == second);
