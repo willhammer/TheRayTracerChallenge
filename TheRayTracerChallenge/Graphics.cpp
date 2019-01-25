@@ -264,9 +264,9 @@ namespace Graphics
 
 			Canvas c{ width, height };
 
-			for (auto i = 0; i < height; ++i)
+			for (size_t i = 0; i < height; ++i)
 			{
-				for (auto j = 0; j < width; ++j)
+				for (size_t j = 0; j < width; ++j)
 				{
 					const auto& pixel = c.GetAt(i, j);
 					Assert::AreEqual(H::Get(pixel, CI::R), 0.0f);
@@ -289,9 +289,9 @@ namespace Graphics
 
 			c.SetAt(specLine, specColumn, H::MakeColor(Tuple4f{ 1.0f, 2.0f, 3.0f, 0.6f }));
 
-			for (auto i = 0; i < height; ++i)
+			for (size_t i = 0; i < height; ++i)
 			{
-				for (auto j = 0; j < width; ++j)
+				for (size_t j = 0; j < width; ++j)
 				{
 					const auto& pixel = c.GetAt(i, j);
 

@@ -88,10 +88,10 @@ namespace Gameplay
 				projectilePositions.push_back(projectile.position);
 			}
 			
-			size_t width = 16 * 20;
-			size_t height = 9 * 20;
+			float width = 16 * 20;
+			float height = 9 * 20;
 
-			G::Canvas canvas(width, height);
+			G::Canvas canvas((size_t)width, (size_t)height);
 			for (const Point4f& position : projectilePositions)
 			{
 				auto posX = H::Get(position, C::X);
@@ -102,7 +102,7 @@ namespace Gameplay
 				if (posY < 0.0f) posY = 0.0f;
 				if (posY > height - 1) posY = height - 1;
 				
-				canvas.SetAt(posY, posX, projectileColor);
+				canvas.SetAt((size_t)posY, (size_t)posX, projectileColor);
 			}
 
 			canvas.SetFilename("projectileplot.ppm");

@@ -4,23 +4,17 @@
 #include <limits>
 #include <variant>
 #include <ctype.h>
-
-namespace Math
-{
-	template<typename T> class Tuple4;
-	template<typename T> class Vector4;
-	template<typename T> class Point4;
-}
-
+#include <array>
 #define IsA(T, Y) std::is_base_of_v<T, Y>
 #define Equalsf Math::Equals<float>
 
 namespace Math
 {   
-	template<typename T> class Tuple;
+	template<typename T> class Tuple4;
 	template<typename T> class Vector4;
 	template<typename T> class Point4;
 	template<typename T> class Color4;
+	template<typename T> class Matrix4;
 
 	class Helpers
 	{
@@ -255,26 +249,27 @@ namespace Math
 	};
 
 
-	template<typename T>
-	T GetValueFromString(std::string valueAsString, size_t maxFractionDigits)
+	template<typename T, int Size>
+	class Matrix
 	{
-		//implemented this because std::stof puts out values with unacceptable precision
-
-
-		std::stringstream ss;
-		ss << valueAsString;
-
-		std::string integer;
-		std::getline(ss, integer, '.');
-
-
-
-		const char* stringContents = valueAsString.c_str();
-		for (auto& singleChar : stringContents)
+	private: 
+		friend class Helpers;
+		std::array<std::array<T, Size>, Size> contents;
+	
+	public:
+		
+		Matrix(std::array<std::array<T, Size>, Size> contentsNew)
 		{
-			if(isdigit(singleChar))
-				std::to_integer()
+			contents = contentsNew;
 		}
-	}
+
+		T& GetAt(size_t line, size_t column) { return contents[line][column]; }
+	};
+
+	using Point4f = Math::Point4<float>;
+	using Vector4f = Math::Vector4<float>;
+	using Tuple4f = Math::Tuple4<float>;	
+	using Matrix4f = Math::Matrix<float, 4>;
+
 }
 

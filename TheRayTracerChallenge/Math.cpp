@@ -14,11 +14,6 @@ using CI = Math::Helpers::ColorInput;
 
 namespace Math
 {
-	using Point4f = M::Point4<float>;
-	using Vector4f = M::Vector4<float>;
-	using Tuple4f = M::Tuple4<float>;
-	using Color4f = M::Color4<float>;
-
 	template<typename T>
 	constexpr M::Tuple4<T> AddTuples(const M::Tuple4<T>& first, const M::Tuple4<T>& second)
 	{
@@ -521,6 +516,16 @@ namespace Math
 			Assert::IsTrue(Equalsf(H::Get(color1, CI::G), 0.12f));
 			Assert::IsTrue(Equalsf(H::Get(color1, CI::B), 2.72f));
 			Assert::IsTrue(Equalsf(H::Get(color1, CI::A), 0.2f));
+		}
+
+		TEST_METHOD(MatrixCreation)
+		{
+			auto matrix1 = Matrix<float, 2>({ 1.0f, 2.0f, 3.0f, 4.0f });
+
+			Assert::IsTrue(Equalsf(matrix1.GetAt(0, 0), 1.0f));
+			Assert::IsTrue(Equalsf(matrix1.GetAt(0, 1), 2.0f));
+			Assert::IsTrue(Equalsf(matrix1.GetAt(1, 0), 3.0f));
+			Assert::IsTrue(Equalsf(matrix1.GetAt(1, 1), 4.0f));
 		}
     };
 }
