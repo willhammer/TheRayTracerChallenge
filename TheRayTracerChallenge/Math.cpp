@@ -50,6 +50,27 @@ namespace Math
 		H::Set(tuple, C::Z, H::Get(tuple, C::Z) / scalar);
 	}
 
+	template<typename T>
+	constexpr M::Tuple4<T> MultiplyTupleByMatrix(M::Tuple4<T>& tuple, M::SquareMatrix<T, 4>& matrix)
+	{
+		M::Tuple4<T> retVal{0.0f, 0.0f, 0.0f, 0.0f};
+
+		static const size_t Size = 4;
+
+
+		for (size_t i = 0; i < Size; ++i)
+		{
+			for (size_t j = 0; j < Size; ++j)
+			{
+				H::Set(retVal, C(i),
+					H::Get(retVal, C(i)) + 
+					matrix.GetValueAt(i, j) * H::Get(tuple, C(j)));
+			}
+		}
+
+		return retVal;
+	}
+
 	template<typename T> M::Vector4<T> operator*(const M::Vector4<T>& vector, const T scalar)
 	{
 		M::Vector4<T> retVal = vector;
@@ -73,16 +94,16 @@ namespace Math
 
 	template<typename T, size_t Size> 
 	Math::SquareMatrix<T, Size> operator*(
-		Math::SquareMatrix<T, Size> matrix1,
-		Math::SquareMatrix<T, Size> matrix2)
+		Math::SquareMatrix<T, Size>& matrix1,
+		Math::SquareMatrix<T, Size>& matrix2)
 	{
-		Math::SquareMatrix<T, Size> newMatrix;
+		Math::SquareMatrix<T, Size> retVal;
 		
 		for (size_t lineIndex = 0; lineIndex < Size; ++lineIndex)
 		{
 			for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
 			{
-				auto& valueToSet = newMatrix.GetValueAt(lineIndex, columnIndex);
+				auto& valueToSet = retVal.GetValueAt(lineIndex, columnIndex);
 				valueToSet = 0;
 
 				for (size_t indexMul = 0; indexMul < Size; ++indexMul)
@@ -94,7 +115,17 @@ namespace Math
 			}
 		}
 
-		return newMatrix;
+		return retVal;
+	}
+
+
+	template<typename T>
+	Math::Vector4<T> operator*(
+		Math::Vector4<T>& vector, 
+		Math::SquareMatrix<T, 4>& matrix)
+	{
+		M::Tuple4<T> retValT = MultiplyTupleByMatrix(static_cast<M::Tuple4<T>>(vector), matrix);		
+		return  H::MakeVector(retValT);
 	}
 
 	template<typename T> M::Vector4<T> operator/(const M::Vector4<T>& vector, const T scalar)
@@ -328,7 +359,6 @@ namespace Math
             auto vector2 = H::MakeVector(2.3f, -5.2f, 3.1f);
 
             auto additionResult = point + vector;
-
             Assert::IsTrue(Equalsf(H::Get(additionResult, C::X), 3.6f));
             Assert::IsTrue(Equalsf(H::Get(additionResult, C::Y), -7.4f));
             Assert::IsTrue(Equalsf(H::Get(additionResult, C::Z), 7.2f));
@@ -602,6 +632,34 @@ namespace Math
 
 			matrixResult = matrix1 * matrix2;
 			Assert::IsTrue(matrixResult == matrixExpectation);
+		}
+
+		TEST_METHOD(VectorByMatrixMultiplication)
+		{
+			auto vector = H::MakeVector<float>(1.0f, 2.0f, 3.0f);
+			auto matrix = SquareMatrix<float, 4>({
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f });
+
+
+			auto multiplicationResult = vector * matrix;
+			auto expectedResult = vector;
+
+			Assert::IsTrue(expectedResult == multiplicationResult);
+
+			matrix = SquareMatrix<float, 4>({
+				1.0f, 2.0f, 3.0f, 4.0f,
+				5.0f, 6.0f, 7.0f, 8.0f,
+				9.0f, 10.0f, 11.0f, 12.0f,
+				13.0f, 14.0f, 15.0f, 16.0f });
+
+
+			expectedResult = H::MakeVector<float>(14.0f, 38.0f, 62.0f);
+			multiplicationResult = vector * matrix;
+
+			Assert::IsTrue(expectedResult == multiplicationResult);
 		}
     };
 }
