@@ -12,6 +12,21 @@ using H = Math::Helpers;
 using C = Math::Helpers::Coordinate;
 using CI = Math::Helpers::ColorInput;
 
+
+namespace
+{
+	template<typename T, size_t Size> constexpr T Dot(const std::array<T, Size>& first, const std::array<T, Size>& second)
+	{
+		T retVal = T(0);
+		for (size_t i = 0; i < Size; ++i)
+		{
+			retVal += first[i] * second[i];
+		}
+
+		return retVal;
+	}
+}
+
 namespace Math
 {
 	template<typename T>
@@ -78,18 +93,16 @@ namespace Math
 	{
 		Math::SquareMatrix<T, Size> newMatrix;
 		
-		for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
+		
+		for (size_t lineIndex = 0; lineIndex < Size; ++lineIndex)
 		{
-			for (size_t lineIndex = 0; lineIndex < Size; ++lineIndex)
+			for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
 			{
-				for (size_t columnIndex2 = 0; columnIndex2 < Size; ++columnIndex2)
-				{
-					newMatrix.GetValueAt(lineIndex, columnIndex) +=
-						matrix1.GetValueAt(lineIndex, columnIndex2) * 
-						matrix2.GetValueAt(columnIndex2, lineIndex);
-				}
+				newMatrix.GetValueAt(lineIndex, columnIndex) = 
+					Dot(matrix1.GetLineAt(lineIndex), matrix2.GetColumnAt(columnIndex));
 			}
 		}
+		
 
 		return newMatrix;
 	}
@@ -579,9 +592,17 @@ namespace Math
 				4.0f, 5.0f, 6.0f, 
 				7.0f, 8.0f, 9.0f });
 
-			auto matrix2 = SquareMatrix<float, 3>({ 
-				1.0f, 1.0f, 1.0f, 
-				1.0f, 1.0f, 1.0f, 
+			auto matrix2 = SquareMatrix<float, 3>({
+				1.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 1.0f });
+
+			auto matrixResult = matrix1 * matrix2;
+			Assert::IsTrue(matrixResult == matrix1);
+			
+			matrix2 = SquareMatrix<float, 3>({
+				1.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f,
 				1.0f, 1.0f, 1.0f });
 
 			auto matrixExpectation = SquareMatrix<float, 3>({ 
@@ -589,7 +610,7 @@ namespace Math
 				15.0f, 15.0f, 15.0f, 
 				24.0f, 24.0f, 24.0f });
 
-			auto matrixResult = matrix1 * matrix2;
+			matrixResult = matrix1 * matrix2;
 			Assert::IsTrue(matrixResult == matrixExpectation);
 		}
     };

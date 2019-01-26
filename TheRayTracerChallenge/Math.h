@@ -285,12 +285,22 @@ namespace Math
 		}
 		
 		T& GetValueAt(size_t line, size_t column) { return contents[line][column]; }
-		std::array<T, Size>& GetColumnAt(size_t line) { return contents[line]; }
+		std::array<T, Size>& GetLineAt(size_t line) { return contents[line]; }
+		std::array<T, Size> GetColumnAt(size_t column) 
+		{
+			std::array<T, Size> returnColumn;
+			for (size_t i = 0; i < Size; ++i)
+			{
+				returnColumn[i] = contents[i][column];
+			}
+			
+			return returnColumn;
+		}
 	};
 
 	using Point4f = Math::Point4<float>;
 	using Vector4f = Math::Vector4<float>;
-	using Tuple4f = Math::Tuple4<float>;	
+	using Tuple4f = Math::Tuple4<float>;
 	using Matrix4f = Math::SquareMatrix<float, 4>;
 
 }
