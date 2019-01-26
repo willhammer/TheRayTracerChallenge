@@ -14,7 +14,7 @@ namespace Math
 	template<typename T> class Vector4;
 	template<typename T> class Point4;
 	template<typename T> class Color4;
-	template<typename T> class Matrix4;
+	template<typename T, size_t Size> class SquareMatrix;
 
 	class Helpers
 	{
@@ -104,18 +104,19 @@ namespace Math
 	};
 	
 	template<typename T> Math::Vector4<T>	operator*(const Math::Vector4<T>& vector, const T scalar);
-	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
-	
 	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color, const T scalar);
-	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
-
 	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color1, const Math::Color4<T>& color2);
+	template<typename T, size_t Size> Math::SquareMatrix<T, Size> 
+											operator*(const Math::SquareMatrix<T, Size> matrix1, const Math::SquareMatrix<T, Size> matrix2);
+
+	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
+	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
 	template<typename T> void				operator*= (Math::Color4<T>& color, const Math::Color4<T>& colorOther);
 
 	template<typename T> Math::Vector4<T>	operator/(const Math::Vector4<T>& vector, const T scalar);
-	template<typename T> void				operator/= (Math::Vector4<T>& vector, const T scalar);
-
 	template<typename T> Math::Color4<T>	operator/(const Math::Color4<T>& color, const T scalar);
+
+	template<typename T> void				operator/= (Math::Vector4<T>& vector, const T scalar);
 	template<typename T> void				operator/= (Math::Color4<T>& color, const T scalar);
 
 	template<typename T> Math::Point4<T>	operator+ (const Math::Point4<T>& first, const Math::Vector4<T>& second);
@@ -171,6 +172,22 @@ namespace Math
 			Equals<U>(Math::Helpers::Get(first, Math::Helpers::Coordinate::Z), Math::Helpers::Get(second, Math::Helpers::Coordinate::Z));
 	}
 	
+	template<typename T, size_t Size> constexpr bool operator== (Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2)
+	{
+		for (size_t indexLine = 0; indexLine < Size; ++indexLine)
+		{
+			for (size_t indexColumn = 0; indexColumn < Size; ++indexColumn)
+			{
+				if (!Equals<T>(
+					matrix1.GetValueAt(indexLine, indexColumn), 
+					matrix2.GetValueAt(indexLine, indexColumn)))
+					return false;
+			}
+		}
+
+		return true;
+	}
+
 	/* Y is up, Z points away from the camera */
 	template<typename T>
 	class Tuple4
@@ -249,27 +266,32 @@ namespace Math
 	};
 
 
-	template<typename T, int Size>
-	class Matrix
+	template<typename T, size_t Size>
+	class SquareMatrix
 	{
 	private: 
 		friend class Helpers;
 		std::array<std::array<T, Size>, Size> contents;
 	
-	public:
-		
-		Matrix(std::array<std::array<T, Size>, Size> contentsNew)
+	public:		
+		SquareMatrix()
+		{
+			contents = std::array<std::array<T, Size>, Size>();
+		}
+
+		SquareMatrix(std::array<std::array<T, Size>, Size> contentsNew)
 		{
 			contents = contentsNew;
 		}
-
-		T& GetAt(size_t line, size_t column) { return contents[line][column]; }
+		
+		T& GetValueAt(size_t line, size_t column) { return contents[line][column]; }
+		std::array<T, Size>& GetColumnAt(size_t line) { return contents[line]; }
 	};
 
 	using Point4f = Math::Point4<float>;
 	using Vector4f = Math::Vector4<float>;
 	using Tuple4f = Math::Tuple4<float>;	
-	using Matrix4f = Math::Matrix<float, 4>;
+	using Matrix4f = Math::SquareMatrix<float, 4>;
 
 }
 

@@ -71,6 +71,29 @@ namespace Math
 		return retVal;
 	}
 
+	template<typename T, size_t Size> 
+	Math::SquareMatrix<T, Size> operator*(
+		Math::SquareMatrix<T, Size> matrix1,
+		Math::SquareMatrix<T, Size> matrix2)
+	{
+		Math::SquareMatrix<T, Size> newMatrix;
+		
+		for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
+		{
+			for (size_t lineIndex = 0; lineIndex < Size; ++lineIndex)
+			{
+				for (size_t columnIndex2 = 0; columnIndex2 < Size; ++columnIndex2)
+				{
+					newMatrix.GetValueAt(lineIndex, columnIndex) +=
+						matrix1.GetValueAt(lineIndex, columnIndex2) * 
+						matrix2.GetValueAt(columnIndex2, lineIndex);
+				}
+			}
+		}
+
+		return newMatrix;
+	}
+
 	template<typename T> M::Vector4<T> operator/(const M::Vector4<T>& vector, const T scalar)
 	{
 		M::Vector4<T> retVal = vector;
@@ -520,12 +543,54 @@ namespace Math
 
 		TEST_METHOD(MatrixCreation)
 		{
-			auto matrix1 = Matrix<float, 2>({ 1.0f, 2.0f, 3.0f, 4.0f });
+			auto matrix1 = SquareMatrix<float, 2>({ 1.0f, 2.0f, 3.0f, 4.0f });
 
-			Assert::IsTrue(Equalsf(matrix1.GetAt(0, 0), 1.0f));
-			Assert::IsTrue(Equalsf(matrix1.GetAt(0, 1), 2.0f));
-			Assert::IsTrue(Equalsf(matrix1.GetAt(1, 0), 3.0f));
-			Assert::IsTrue(Equalsf(matrix1.GetAt(1, 1), 4.0f));
+			Assert::IsTrue(Equalsf(matrix1.GetValueAt(0, 0), 1.0f));
+			Assert::IsTrue(Equalsf(matrix1.GetValueAt(0, 1), 2.0f));
+			Assert::IsTrue(Equalsf(matrix1.GetValueAt(1, 0), 3.0f));
+			Assert::IsTrue(Equalsf(matrix1.GetValueAt(1, 1), 4.0f));
+		}
+
+		TEST_METHOD(MatrixEquality)
+		{
+			auto matrix1 = SquareMatrix<float, 3>({ 
+				1.0f, 2.0f, 3.0f, 
+				4.0f, 5.0f, 6.0f, 
+				7.0f, 8.0f, 9.0f });
+			
+			auto matrix2 = SquareMatrix<float, 3>({ 
+				1.0f, 2.0f, 3.0f, 
+				4.0f, 5.0f, 6.0f, 
+				7.0f, 8.0f, 9.0f });
+			
+			auto matrix3 = SquareMatrix<float, 3>({ 
+				1.0f, 2.0f, 4.0f, 
+				4.0f, 5.0f, 6.0f, 
+				7.0f, 8.0f, 9.0f });
+
+			Assert::IsTrue(matrix1 == matrix2);
+			Assert::IsFalse(matrix1 == matrix3);
+		}
+
+		TEST_METHOD(MatrixMultiplication)
+		{
+			auto matrix1 = SquareMatrix<float, 3>({ 
+				1.0f, 2.0f, 3.0f, 
+				4.0f, 5.0f, 6.0f, 
+				7.0f, 8.0f, 9.0f });
+
+			auto matrix2 = SquareMatrix<float, 3>({ 
+				1.0f, 1.0f, 1.0f, 
+				1.0f, 1.0f, 1.0f, 
+				1.0f, 1.0f, 1.0f });
+
+			auto matrixExpectation = SquareMatrix<float, 3>({ 
+				6.0f, 6.0f, 6.0f, 
+				15.0f, 15.0f, 15.0f, 
+				24.0f, 24.0f, 24.0f });
+
+			auto matrixResult = matrix1 * matrix2;
+			Assert::IsTrue(matrixResult == matrixExpectation);
 		}
     };
 }
