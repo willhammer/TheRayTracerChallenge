@@ -12,21 +12,6 @@ using H = Math::Helpers;
 using C = Math::Helpers::Coordinate;
 using CI = Math::Helpers::ColorInput;
 
-
-namespace
-{
-	template<typename T, size_t Size> constexpr T Dot(const std::array<T, Size>& first, const std::array<T, Size>& second)
-	{
-		T retVal = T(0);
-		for (size_t i = 0; i < Size; ++i)
-		{
-			retVal += first[i] * second[i];
-		}
-
-		return retVal;
-	}
-}
-
 namespace Math
 {
 	template<typename T>
@@ -93,16 +78,21 @@ namespace Math
 	{
 		Math::SquareMatrix<T, Size> newMatrix;
 		
-		
 		for (size_t lineIndex = 0; lineIndex < Size; ++lineIndex)
 		{
 			for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
 			{
-				newMatrix.GetValueAt(lineIndex, columnIndex) = 
-					Dot(matrix1.GetLineAt(lineIndex), matrix2.GetColumnAt(columnIndex));
+				auto& valueToSet = newMatrix.GetValueAt(lineIndex, columnIndex);
+				valueToSet = 0;
+
+				for (size_t indexMul = 0; indexMul < Size; ++indexMul)
+				{
+					valueToSet +=
+						matrix1.GetValueAt(lineIndex, indexMul) *
+						matrix2.GetValueAt(indexMul, columnIndex);
+				}
 			}
 		}
-		
 
 		return newMatrix;
 	}
