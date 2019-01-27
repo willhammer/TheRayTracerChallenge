@@ -9,13 +9,23 @@
 #define Equalsf Math::Equals<float>
 
 namespace Math
-{   
+{
 	template<typename T> class Tuple4;
 	template<typename T> class Vector4;
 	template<typename T> class Point4;
 	template<typename T> class Color4;
 	template<typename T, size_t Size> class SquareMatrix;
+}
 
+namespace
+{
+	template<typename T, size_t Size>
+	std::array<T, Size> GetColumnFromMatrix(Math::SquareMatrix<T, Size>& matrix, size_t column);
+}
+
+
+namespace Math
+{
 	class Helpers
 	{
 	public:
@@ -110,7 +120,7 @@ namespace Math
 											operator*(Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2);
 
 	template<typename T, size_t Size> Math::Vector4<T>
-											operator*(Math::Vector4<T>& vector, Math::SquareMatrix<T, Size>& matrix);
+											operator*(const Math::Vector4<T>& vector, Math::SquareMatrix<T, Size>& matrix);
 
 	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
 	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
@@ -274,37 +284,75 @@ namespace Math
 	{
 	private: 
 		friend class Helpers;
+
 		std::array<std::array<T, Size>, Size> contents;
-	
-	public:		
+		bool transposed;
+
+	public:
+
+		static SquareMatrix Identity()
+		{
+			SquareMatrix<T, Size> identity;
+			for (size_t i = 0; i < Size; ++i)
+			{
+				identity.GetValueAt(i, i) = T(1);
+			}
+
+			return identity;
+		}
+
 		SquareMatrix()
 		{
 			contents = std::array<std::array<T, Size>, Size>();
+			transposed = false;
 		}
 
 		SquareMatrix(std::array<std::array<T, Size>, Size> contentsNew)
 		{
 			contents = contentsNew;
+			transposed = false;
+		}
+
+		T& GetValueAt(size_t line, size_t column)
+		{ 
+			return transposed ? contents[column][line] : contents[line][column];
+		}
+
+		T& GetOriginalValueAt(size_t line, size_t column)
+		{
+			return contents[line][column];
 		}
 		
-		T& GetValueAt(size_t line, size_t column) { return contents[line][column]; }
-		std::array<T, Size>& GetLineAt(size_t line) { return contents[line]; }
+		std::array<T, Size> GetLineAt(size_t line) 
+		{ 
+			return transposed ? GetColumnFromMatrix(*this, line) : contents[line];
+		}
 		std::array<T, Size> GetColumnAt(size_t column) 
+		{	
+			return transposed ? contents[column] : GetColumnFromMatrix(*this, column);
+		}
+
+		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
+	};
+
+	namespace
+	{
+		template<typename T, size_t Size>
+		std::array<T, Size> GetColumnFromMatrix(SquareMatrix<T, Size>& matrix, size_t column)
 		{
 			std::array<T, Size> returnColumn;
 			for (size_t i = 0; i < Size; ++i)
 			{
-				returnColumn[i] = contents[i][column];
+				returnColumn[i] = matrix.GetOriginalValueAt(i, column);
 			}
-			
+
 			return returnColumn;
 		}
-	};
+	}
 
 	using Point4f = Math::Point4<float>;
 	using Vector4f = Math::Vector4<float>;
 	using Tuple4f = Math::Tuple4<float>;
 	using Matrix4f = Math::SquareMatrix<float, 4>;
-
 }
 

@@ -121,7 +121,7 @@ namespace Math
 
 	template<typename T>
 	Math::Vector4<T> operator*(
-		Math::Vector4<T>& vector, 
+		const Math::Vector4<T>& vector, 
 		Math::SquareMatrix<T, 4>& matrix)
 	{
 		M::Tuple4<T> retValT = MultiplyTupleByMatrix(static_cast<M::Tuple4<T>>(vector), matrix);		
@@ -584,6 +584,56 @@ namespace Math
 			Assert::IsTrue(Equalsf(matrix1.GetValueAt(1, 1), 4.0f));
 		}
 
+		TEST_METHOD(MatrixGetLine)
+		{
+			auto matrix = SquareMatrix<float, 3>({
+				1.0f, 2.0f, 4.0f,
+				4.0f, 5.0f, 6.0f,
+				7.0f, 8.0f, 9.0f });
+
+			auto line = matrix.GetLineAt(0);
+			auto expected = std::array<float, 3>{1.0f, 2.0f, 4.0f};
+
+			Assert::IsTrue(line == expected);
+
+			matrix.SetTransposed(true);
+			line = matrix.GetLineAt(0);
+			expected = std::array<float, 3>{1.0f, 4.0f, 7.0f};
+			Assert::IsTrue(line == expected);
+		}
+
+		TEST_METHOD(MatrixGetColumn)
+		{
+			auto matrix = SquareMatrix<float, 3>({
+				1.0f, 2.0f, 4.0f,
+				4.0f, 5.0f, 6.0f,
+				7.0f, 8.0f, 9.0f });
+
+			auto line = matrix.GetColumnAt(0);
+			auto expected = std::array<float, 3>{1.0f, 4.0f, 7.0f};
+			
+			Assert::IsTrue(line == expected);
+
+			matrix.SetTransposed(true);
+			line = matrix.GetColumnAt(0);
+			expected = std::array<float, 3>{1.0f, 2.0f, 4.0f};
+			Assert::IsTrue(line == expected);
+		}
+
+
+		TEST_METHOD(MatrixIdentity)
+		{
+			auto matrix = SquareMatrix<float, 4>::Identity();
+
+			auto expectedResult = SquareMatrix<float, 4>({
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f });
+
+			Assert::IsTrue(expectedResult == matrix);
+		}
+
 		TEST_METHOD(MatrixEquality)
 		{
 			auto matrix1 = SquareMatrix<float, 3>({ 
@@ -634,15 +684,46 @@ namespace Math
 			Assert::IsTrue(matrixResult == matrixExpectation);
 		}
 
+		TEST_METHOD(MatrixMultiplicationTransposed)
+		{
+			auto matrix1 = SquareMatrix<float, 3>({
+				1.0f, 2.0f, 3.0f,
+				4.0f, 5.0f, 6.0f,
+				7.0f, 8.0f, 9.0f });
+
+			matrix1.SetTransposed(true);
+
+			auto matrix2 = SquareMatrix<float, 3>({
+				1.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 1.0f });
+
+			auto matrixResult = matrix1 * matrix2;
+			auto matrixExpectation = SquareMatrix<float, 3>({
+				1.0f, 4.0f, 7.0f,
+				2.0f, 5.0f, 8.0f,
+				3.0f, 6.0f, 9.0f });
+
+			Assert::IsTrue(matrixResult == matrixExpectation);
+
+			matrix2 = SquareMatrix<float, 3>({
+				1.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f });
+
+			matrixExpectation = SquareMatrix<float, 3>({
+				12.0f, 12.0f, 12.0f,
+				15.0f, 15.0f, 15.0f,
+				18.0f, 18.0f, 18.0f });
+
+			matrixResult = matrix1 * matrix2;
+			Assert::IsTrue(matrixResult == matrixExpectation);
+		}
+
 		TEST_METHOD(VectorByMatrixMultiplication)
 		{
 			auto vector = H::MakeVector<float>(1.0f, 2.0f, 3.0f);
-			auto matrix = SquareMatrix<float, 4>({
-				1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f });
-
+			auto matrix = SquareMatrix<float, 4>::Identity();
 
 			auto multiplicationResult = vector * matrix;
 			auto expectedResult = vector;
@@ -661,6 +742,32 @@ namespace Math
 
 			Assert::IsTrue(expectedResult == multiplicationResult);
 		}
+
+		TEST_METHOD(VectorByMatrixMultiplicationTransposed)
+		{
+			auto vector = H::MakeVector<float>(1.0f, 2.0f, 3.0f);
+			auto matrix = SquareMatrix<float, 4>::Identity();
+			matrix.SetTransposed(true);
+
+			auto multiplicationResult = vector * matrix;
+			auto expectedResult = vector;
+
+			Assert::IsTrue(expectedResult == multiplicationResult);
+
+			matrix = SquareMatrix<float, 4>({
+				1.0f, 2.0f, 3.0f, 4.0f,
+				5.0f, 6.0f, 7.0f, 8.0f,
+				9.0f, 10.0f, 11.0f, 12.0f,
+				13.0f, 14.0f, 15.0f, 16.0f });
+			
+			matrix.SetTransposed(true);
+
+			expectedResult = H::MakeVector<float>(38.0f, 44.0f, 50.0f);
+			multiplicationResult = vector * matrix;
+
+			Assert::IsTrue(expectedResult == multiplicationResult);
+		}
+
     };
 }
 
