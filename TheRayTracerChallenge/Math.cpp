@@ -330,6 +330,23 @@ namespace Math
     {
 
     public:
+		
+		TEST_METHOD(Assert)
+		{
+			bool exceptionCaught = false;
+
+			try
+			{
+				ASSERT(false);
+			}
+
+			catch (...)
+			{
+				exceptionCaught = true;
+			}
+
+			Assert::IsTrue(exceptionCaught);			
+		}
 
         TEST_METHOD(AlmostEqualsWorksWithinEpsilon)
         {
@@ -766,6 +783,101 @@ namespace Math
 			multiplicationResult = vector * matrix;
 
 			Assert::IsTrue(expectedResult == multiplicationResult);
+		}
+
+		TEST_METHOD(MatrixDeterminant_Helpers_Order2)
+		{
+			auto matrix = SquareMatrix<float, 2>({
+				1.0f, 2.0f,
+				4.0f, 5.0f });
+
+			Assert::IsTrue(Equalsf(matrix.GetDeterminant(), -3.0f));
+		}
+
+		TEST_METHOD(MatrixDeterminant_Helpers_Order3)
+		{
+			auto matrix = SquareMatrix<float, 3>({
+				1.0f, 2.0f, 3.0f,
+				4.0f, 5.0f, 6.0f,
+				2.0f, 4.0f, 1.0f});
+
+			Assert::IsTrue(Equalsf(matrix.GetDeterminant(), 15.0f));
+		}
+
+		TEST_METHOD(MatrixDeterminant_Helpers_Order4)
+		{
+
+			auto subMatrix = SquareMatrix<float, 3>({
+				6.0f, 7.0f, 8.0f,
+				10.0f, 11.0f, 12.0f,
+				3.0f, 2.0f, 15.0f });
+			auto det = subMatrix.GetDeterminant();
+			Assert::IsTrue(Equalsf(det, -56.0f));
+
+			subMatrix = SquareMatrix<float, 3>({
+				5.0f, 7.0f, 8.0f,
+				9.0f, 11.0f, 12.0f,
+				4.0f, 2.0f, 15.0f });
+			det = subMatrix.GetDeterminant();
+			Assert::IsTrue(Equalsf(det, -112.0f));
+
+
+			auto matrix = SquareMatrix<float, 4>({
+				11.0f, 2.0f, 3.0f, 4.0f,
+				5.0f, 6.0f, 7.0f, 8.0f,
+				9.0f, 10.0f, 11.0f, 12.0f,
+				4.0f, 3.0f, 2.0f, 15.0f });
+
+			det = matrix.GetDeterminant();
+			Assert::IsTrue(Equalsf(det, -560.0f));
+		}
+
+		TEST_METHOD(MatrixDeterminant_Helpers_OrderHigherThan4)
+		{
+			auto matrix = SquareMatrix<float, 5>({
+				11.0f,	2.0f,	3.0f,	4.0f,	5.0f,
+				5.0f,	6.0f,	7.0f,	8.0f,	12.0f,
+				9.0f,	10.0f,	11.0f,	12.0f,	2.0f,
+				4.0f,	3.0f,	2.0f,	1.0f,	3.0f,
+				21.0f,	15.0f,	1.0f,	7.0f,	10.0f});
+
+			Assert::IsTrue(Equalsf(matrix.GetDeterminant(), 30000.0f));
+		}
+
+		TEST_METHOD(Matrix4_Submatrices)
+		{
+			auto matrix = SquareMatrix<float, 4>({
+				11.0f, 2.0f, 3.0f, 4.0f,
+				5.0f, 6.0f, 7.0f, 8.0f,
+				9.0f, 10.0f, 11.0f, 12.0f,
+				4.0f, 3.0f, 2.0f, 15.0f });
+
+			auto subMatrices = GetSubmatrices(matrix);
+			
+			auto expectation = SquareMatrix<float, 3>({
+				6.0f, 7.0f, 8.0f,
+				10.0f, 11.0f, 12.0f,
+				3.0f, 2.0f, 15.0f });			
+			Assert::IsTrue(subMatrices[0] == expectation);
+
+			expectation = SquareMatrix<float, 3>({
+				5.0f, 7.0f, 8.0f,
+				9.0f, 11.0f, 12.0f,
+				4.0f, 2.0f, 15.0f });
+			Assert::IsTrue(subMatrices[1] == expectation);
+
+			expectation = SquareMatrix<float, 3>({
+				5.0f, 6.0f, 8.0f,
+				9.0f, 10.0f, 12.0f,
+				4.0f, 3.0f, 15.0f });
+			Assert::IsTrue(subMatrices[2] == expectation);
+
+			expectation = SquareMatrix<float, 3>({
+				5.0f, 6.0f, 7.0f,
+				9.0f, 10.0f, 11.0f,
+				4.0f, 3.0f, 2.0f });
+			Assert::IsTrue(subMatrices[3] == expectation);
+
 		}
 
     };

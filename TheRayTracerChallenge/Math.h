@@ -5,8 +5,32 @@
 #include <variant>
 #include <ctype.h>
 #include <array>
+#include <cassert>
+
 #define IsA(T, Y) std::is_base_of_v<T, Y>
 #define Equalsf Math::Equals<float>
+
+
+namespace
+{
+	static const char* DEFAULT_ASSERT_MESSAGE = "Assert triggered";
+
+	const std::string ConstructAssertMessage(std::string customMessage)
+	{
+		std::stringstream formatStream;
+		formatStream << "File: " << __FILE__ << " Line: " << __LINE__ << std::endl;
+		formatStream << "Error: " << customMessage << std::endl;
+
+		return formatStream.str();
+	}
+
+	void ASSERT(bool condition, std::string message = DEFAULT_ASSERT_MESSAGE)
+	{
+		if (!condition)
+			throw std::exception(ConstructAssertMessage(message).c_str());
+	}
+}
+
 
 namespace Math
 {
@@ -21,8 +45,19 @@ namespace
 {
 	template<typename T, size_t Size>
 	std::array<T, Size> GetColumnFromMatrix(Math::SquareMatrix<T, Size>& matrix, size_t column);
-}
 
+	template<typename T, size_t Size>
+	const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix);
+
+	template<typename T>
+	const T GetDeterminant3(Math::SquareMatrix<T, 4>& matrix);
+
+	template<typename T>
+	const T GetDeterminant3(Math::SquareMatrix<T, 3>& matrix);
+
+	template<typename T>	
+	const T GetDeterminant2(Math::SquareMatrix<T, 2>& matrix);
+}
 
 namespace Math
 {
@@ -313,6 +348,11 @@ namespace Math
 			transposed = false;
 		}
 
+		void SetOriginalValueAt(size_t line, size_t column, const T& value)
+		{
+			contents[line][column] = value;
+		}
+
 		T& GetValueAt(size_t line, size_t column)
 		{ 
 			return transposed ? contents[column][line] : contents[line][column];
@@ -327,9 +367,22 @@ namespace Math
 		{ 
 			return transposed ? GetColumnFromMatrix(*this, line) : contents[line];
 		}
+		
 		std::array<T, Size> GetColumnAt(size_t column) 
 		{	
 			return transposed ? contents[column] : GetColumnFromMatrix(*this, column);
+		}
+
+		const T GetDeterminant() const
+		{
+			if (Size < 2)
+				return 0;
+
+			if (Size == 2) return GetDeterminant2<T>((Math::SquareMatrix<T, 2>&)*this);
+			if (Size == 3) return GetDeterminant3<T>((Math::SquareMatrix<T, 3>&)*this);
+			if (Size == 4) return GetDeterminant4<T>((Math::SquareMatrix<T, 4>&)*this);
+			
+			return GetDeterminantHigherOrder<T, Size>((Math::SquareMatrix<T, Size>&)*this);
 		}
 
 		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
@@ -347,6 +400,99 @@ namespace Math
 			}
 
 			return returnColumn;
+		}
+
+		template<typename T, size_t Size, size_t Subsize>
+		std::array<Math::SquareMatrix<T, Subsize>, Size> FindSubmatricesOfSize(Math::SquareMatrix<T, Size>& matrix)
+		{
+			std::array<Math::SquareMatrix<T, Subsize>, Size>
+		}
+
+
+		template<typename T, size_t Size>
+		const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix)
+		{
+			throw std::exception("This operation is not currently supported. Will get back to it, whenever...");
+		}
+
+		template<typename T, size_t Size>
+		std::array<Math::SquareMatrix<T, Size - 1>, Size> GetSubmatrices(Math::SquareMatrix<T, Size>& matrix)
+		{
+			std::array<Math::SquareMatrix<T, Size - 1>, Size> subMatrices;
+			for (size_t i = 0; i < Size; ++i)
+			{
+				Math::SquareMatrix<T, Size - 1> subMatrix;
+				int line = 0;
+				
+				for (size_t lineOriginal = 1; lineOriginal < Size; ++lineOriginal)
+				{
+					int column = 0;
+					for (size_t columnOriginal = 0; columnOriginal < Size; ++columnOriginal)
+					{
+						if (columnOriginal == i)
+							continue;
+						
+						subMatrix.SetOriginalValueAt(line, column, matrix.GetOriginalValueAt(lineOriginal, columnOriginal));
+						++column;
+					}
+					++line;
+				}
+
+				subMatrices.at(i) = subMatrix;				
+			}
+
+			return subMatrices;
+		}
+
+		template<typename T>
+		const T GetDeterminant4(Math::SquareMatrix<T, 4>& matrix)
+		{
+			std::array<Math::SquareMatrix<T, 3>, 4> subMatrices = GetSubmatrices(matrix);
+			T detVal = T(0);
+
+			for (size_t i = 0; i < 4; ++i)
+			{
+				T sign = T(pow(-1.0, double(i)));
+				T factor = matrix.GetOriginalValueAt(0, i);
+				T subMatrixDeterminant = GetDeterminant3(subMatrices.at(i));
+
+				detVal += sign * factor * subMatrixDeterminant;
+			}
+
+			return detVal;
+		}
+
+		template<typename T>
+		const T GetDeterminant3(Math::SquareMatrix<T, 3>& matrix)
+		{
+		/*
+			0,0  0,1  0,2
+			
+			1,0  1,1  1,2
+
+			2,0  2,1  2,2		
+		*/ 
+			return
+				matrix.GetOriginalValueAt(0, 0) *
+				(	matrix.GetOriginalValueAt(1, 1) * matrix.GetOriginalValueAt(2, 2) -
+					matrix.GetOriginalValueAt(1, 2) * matrix.GetOriginalValueAt(2, 1))
+				- matrix.GetOriginalValueAt(0, 1) *
+				(	matrix.GetOriginalValueAt(1, 0) * matrix.GetOriginalValueAt(2, 2) -
+					matrix.GetOriginalValueAt(1, 2) * matrix.GetOriginalValueAt(2, 0))
+				+ matrix.GetOriginalValueAt(0, 2) *
+				(	matrix.GetOriginalValueAt(1, 0) * matrix.GetOriginalValueAt(2, 1) -
+					matrix.GetOriginalValueAt(1, 1) * matrix.GetOriginalValueAt(2, 0));
+		}
+
+
+		template<typename T>
+		const T GetDeterminant2(Math::SquareMatrix<T, 2>& matrix)
+		{		
+
+			return 
+				matrix.GetOriginalValueAt(0, 0) * matrix.GetOriginalValueAt(1, 1) -
+				matrix.GetOriginalValueAt(0, 1) * matrix.GetOriginalValueAt(1, 0);
+				
 		}
 	}
 
