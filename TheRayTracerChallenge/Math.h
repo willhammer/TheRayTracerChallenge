@@ -322,6 +322,15 @@ namespace Math
 
 		std::array<std::array<T, Size>, Size> contents;
 		bool transposed;
+		T determinant;
+		bool isDeterminantDirty;
+
+
+		T& GetValueInternal(size_t line, size_t column)
+		{
+			return transposed ? contents[column][line] : contents[line][column];
+		}
+
 
 	public:
 
@@ -330,7 +339,7 @@ namespace Math
 			SquareMatrix<T, Size> identity;
 			for (size_t i = 0; i < Size; ++i)
 			{
-				identity.GetValueAt(i, i) = T(1);
+				identity.SetOriginalValueAt(i, i, T(1));				
 			}
 
 			return identity;
@@ -340,6 +349,8 @@ namespace Math
 		{
 			contents = std::array<std::array<T, Size>, Size>();
 			transposed = false;
+			determinant = 0;
+			isDeterminantDirty = true;
 		}
 
 		SquareMatrix(std::array<std::array<T, Size>, Size> contentsNew)
@@ -353,12 +364,18 @@ namespace Math
 			contents[line][column] = value;
 		}
 
-		T& GetValueAt(size_t line, size_t column)
+		void SetValueAt(size_t line, size_t column, const T& value)
+		{
+			auto& valueToSet = GetValueInternal(line, column);
+			valueToSet = value;
+		}
+
+		const T& GetValueAt(size_t line, size_t column)
 		{ 
 			return transposed ? contents[column][line] : contents[line][column];
 		}
 
-		T& GetOriginalValueAt(size_t line, size_t column)
+		const T& GetOriginalValueAt(size_t line, size_t column)
 		{
 			return contents[line][column];
 		}
@@ -421,13 +438,7 @@ namespace Math
 		{
 			std::array<Math::SquareMatrix<T, Subsize>, Size>
 		}
-
-		constexpr int GiveMe5()
-		{
-			const int gimme = 5;
-			return gimme;
-		}
-		
+			
 		template<typename T, size_t Size>
 		const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix)
 		{

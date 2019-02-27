@@ -103,7 +103,8 @@ namespace Math
 		{
 			for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
 			{
-				auto& valueToSet = retVal.GetValueAt(lineIndex, columnIndex);
+				T valueToSet = retVal.GetValueAt(lineIndex, columnIndex);
+				retVal.SetValueAt(lineIndex, columnIndex, 0);
 				valueToSet = 0;
 
 				for (size_t indexMul = 0; indexMul < Size; ++indexMul)
@@ -112,6 +113,8 @@ namespace Math
 						matrix1.GetValueAt(lineIndex, indexMul) *
 						matrix2.GetValueAt(indexMul, columnIndex);
 				}
+
+				retVal.SetValueAt(lineIndex, columnIndex, valueToSet);
 			}
 		}
 
