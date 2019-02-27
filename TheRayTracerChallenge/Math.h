@@ -39,12 +39,17 @@ namespace Math
 	template<typename T> class Point4;
 	template<typename T> class Color4;
 	template<typename T, size_t Size> class SquareMatrix;
+	template<typename T, size_t Size>
+	using SquareMatrixArray = std::array<std::array<SquareMatrix<T, Size>, Size - 1>, Size>;
 }
 
 namespace
 {
 	template<typename T, size_t Size>
 	std::array<T, Size> GetColumnFromMatrix(Math::SquareMatrix<T, Size>& matrix, size_t column);
+
+	template<typename T, size_t Size>
+	Math::SquareMatrix<Math::SquareMatrix<T, Size - 1>, Size> GetCofactorSubmatrices(Math::SquareMatrix<T, Size>& matrix);
 
 	template<typename T, size_t Size>
 	const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix);
@@ -324,7 +329,7 @@ namespace Math
 		bool transposed;
 		T determinant;
 		bool isDeterminantDirty;
-		
+				
 		T& GetValueInternal(size_t line, size_t column)
 		{
 			return transposed ? contents[column][line] : contents[line][column];
@@ -337,7 +342,7 @@ namespace Math
 			SquareMatrix<T, Size> identity;
 			for (size_t i = 0; i < Size; ++i)
 			{
-				identity.SetOriginalValueAt(i, i, T(1));				
+				identity.SetOriginalValueAt(i, i, T(1));
 			}
 
 			return identity;
@@ -347,7 +352,7 @@ namespace Math
 		{
 			contents = std::array<std::array<T, Size>, Size>();
 			transposed = false;
-			determinant = 0;
+			determinant = T(0);
 			isDeterminantDirty = true;
 		}
 
@@ -389,6 +394,31 @@ namespace Math
 			return transposed ? contents[column] : GetColumnFromMatrix(*this, column);
 		}
 
+		SquareMatrix<T, Size> GetCofactors()
+		{
+			SquareMatrix<T, Size> cofactorValues;
+			/*
+			const size_t subMatrixSize = Size - 1;
+
+			std::array<Math::SquareMatrix<T, subMatrixSize>, Size> subMatrices = GetSubmatrices(matrix);
+			T detVal = T(0);
+
+			for (size_t i = 0; i < Size; ++i)
+			{
+				T sign = T(pow(-1.0, double(i)));
+				T factor = matrix.GetOriginalValueAt(0, i);
+				T subMatrixDeterminant = GetDeterminantHigherOrder<T, subMatrixSize>(subMatrices.at(i));
+
+				detVal += sign * factor * subMatrixDeterminant;
+			}
+
+			return detVal;
+			*/
+			return cofactorValues;
+		}
+
+
+
 		const T GetDeterminant()
 		{
 			if (!isDeterminantDirty)
@@ -423,7 +453,13 @@ namespace Math
 		
 		SquareMatrix<T, Size> GetInverse()
 		{
+			SquareMatrix<T, Size> inverse;
 
+			SquareMatrixArray<T, Size> cofactorMatrices = GetCofactorSubmatrices(*this);
+
+
+
+			return inverse;
 		}
 
 		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
@@ -453,7 +489,7 @@ namespace Math
 		{
 			std::array<Math::SquareMatrix<T, Subsize>, Size>
 		}
-			
+		
 		template<typename T, size_t Size>
 		const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix)
 		{
@@ -466,19 +502,8 @@ namespace Math
 			{
 				T sign = T(pow(-1.0, double(i)));
 				T factor = matrix.GetOriginalValueAt(0, i);
-				T subMatrixDeterminant = 0;
+				T subMatrixDeterminant = GetDeterminantHigherOrder<T, subMatrixSize>(subMatrices.at(i));
 				
-				if (Size > 3)
-				{
-					subMatrixDeterminant = GetDeterminantHigherOrder<T, subMatrixSize>(subMatrices.at(i));
-				}
-
-				else
-				{
-					auto matrix2 = (Math::SquareMatrix<T, 2>&) subMatrices.at(i);
-					subMatrixDeterminant = GetDeterminant2(matrix2);
-				}
-
 				detVal += sign * factor * subMatrixDeterminant;
 			}
 
@@ -489,6 +514,37 @@ namespace Math
 		const T GetDeterminantHigherOrder(Math::SquareMatrix<T, 2>& matrix)
 		{
 			return GetDeterminant2<T>(matrix);
+		}
+
+		template<typename T, size_t Size>		
+		SquareMatrixArray<T, Size> GetCofactorSubmatrices(Math::SquareMatrix<T, Size>& matrix)
+		{
+			SquareMatrixArray<T, Size> cofactorSubmatrices;
+
+			for (size_t line = 0; line < Size; ++line)
+			{
+				for (size_t column = 0; column < Size; ++column)
+				{
+					SquareMatrix<T, Size - 1> cofactorSubmatrix;
+
+					int line = 0;
+					for (size_t lineOriginal = 0; lineOriginal < Size; ++lineOriginal)
+					{
+						int column = 0;
+						for (size_t columnOriginal = 0; columnOriginal < Size; ++columnOriginal)
+						{
+							if (columnOriginal == column && lineOriginal == line)
+								continue;
+
+							cofactorSubmatrix.SetOriginalValueAt(line, column, matrix.GetOriginalValueAt(lineOriginal, columnOriginal));
+							++column;
+						}
+						++line;
+					}
+				}
+			}
+
+			return cofactorSubmatrices;
 		}
 
 		template<typename T, size_t Size>
