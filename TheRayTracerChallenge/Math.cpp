@@ -833,10 +833,8 @@ namespace Math
 			det = matrix.GetDeterminant();
 			Assert::IsTrue(Equalsf(det, 0.0f));
 		}
-
 		TEST_METHOD(MatrixDeterminant_Helpers_OrderHigherThan4)
-		{
-			#ifdef HIGHER_ORDER_FIXED
+		{			
 			auto matrix = SquareMatrix<float, 5>({
 				11.0f,	2.0f,	3.0f,	4.0f,	5.0f,
 				5.0f,	6.0f,	7.0f,	8.0f,	12.0f,
@@ -844,8 +842,7 @@ namespace Math
 				4.0f,	3.0f,	2.0f,	1.0f,	3.0f,
 				21.0f,	15.0f,	1.0f,	7.0f,	10.0f});
 
-			Assert::IsTrue(Equalsf(matrix.GetDeterminant(), 30000.0f));
-			#endif
+			Assert::IsTrue(Equalsf(matrix.GetDeterminant(), 30000.0f));		
 		}
 
 		TEST_METHOD(Matrix4_Submatrices)

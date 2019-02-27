@@ -375,20 +375,28 @@ namespace Math
 
 		const T GetDeterminant() const
 		{
+			T detVal = T(0);
 			switch (Size)
 			{
 			case 0:
 			case 1:
-				return 0;
+				detVal = 0;
+				break;
 			case 2:
-				return GetDeterminant2<T>((Math::SquareMatrix<T, 2>&)*this);
+				detVal = GetDeterminant2<T>((Math::SquareMatrix<T, 2>&)*this);
+				break;
 			case 3:
-				return GetDeterminant3<T>((Math::SquareMatrix<T, 3>&)*this);
+				detVal = GetDeterminant3<T>((Math::SquareMatrix<T, 3>&)*this);
+				break;
 			case 4:
-				return GetDeterminant4<T>((Math::SquareMatrix<T, 4>&)*this);
+				detVal = GetDeterminant4<T>((Math::SquareMatrix<T, 4>&)*this);
+				break;
 			default:
-				return 0;// GetDeterminantHigherOrder<T, Size>((Math::SquareMatrix<T, Size>&)*this);
+				detVal = GetDeterminantHigherOrder<T, 5>((Math::SquareMatrix<T, 5>&)*this);
+				break;
 			}
+
+			return detVal;
 		}
 		
 		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
@@ -414,10 +422,15 @@ namespace Math
 			std::array<Math::SquareMatrix<T, Subsize>, Size>
 		}
 
+		constexpr int GiveMe5()
+		{
+			const int gimme = 5;
+			return gimme;
+		}
+		
 		template<typename T, size_t Size>
 		const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix)
 		{
-		#ifdef HIGHER_ORDER_FIXED
 			const size_t subMatrixSize = Size - 1;
 
 			std::array<Math::SquareMatrix<T, subMatrixSize>, Size> subMatrices = GetSubmatrices(matrix);
@@ -431,7 +444,7 @@ namespace Math
 				
 				if (Size > 3)
 				{
-					subMatrixDeterminant = GetDeterminantHigherOrder<T, Size - 1>(subMatrices.at(i));
+					subMatrixDeterminant = GetDeterminantHigherOrder<T, subMatrixSize>(subMatrices.at(i));
 				}
 
 				else
@@ -444,10 +457,12 @@ namespace Math
 			}
 
 			return detVal;
+		}
 
-		#else
-			return T(0);
-		#endif
+		template<typename T, size_t Size>
+		const T GetDeterminantHigherOrder(Math::SquareMatrix<T, 2>& matrix)
+		{
+			return GetDeterminant2<T>(matrix);
 		}
 
 		template<typename T, size_t Size>
@@ -518,8 +533,7 @@ namespace Math
 				(	matrix.GetOriginalValueAt(1, 0) * matrix.GetOriginalValueAt(2, 1) -
 					matrix.GetOriginalValueAt(1, 1) * matrix.GetOriginalValueAt(2, 0));
 		}
-
-
+		
 		template<typename T>
 		const T GetDeterminant2(Math::SquareMatrix<T, 2>& matrix)
 		{
