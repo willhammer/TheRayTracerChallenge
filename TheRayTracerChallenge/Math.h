@@ -324,13 +324,11 @@ namespace Math
 		bool transposed;
 		T determinant;
 		bool isDeterminantDirty;
-
-
+		
 		T& GetValueInternal(size_t line, size_t column)
 		{
 			return transposed ? contents[column][line] : contents[line][column];
 		}
-
 
 	public:
 
@@ -362,6 +360,7 @@ namespace Math
 		void SetOriginalValueAt(size_t line, size_t column, const T& value)
 		{
 			contents[line][column] = value;
+			isDeterminantDirty = true;
 		}
 
 		void SetValueAt(size_t line, size_t column, const T& value)
@@ -390,8 +389,11 @@ namespace Math
 			return transposed ? contents[column] : GetColumnFromMatrix(*this, column);
 		}
 
-		const T GetDeterminant() const
+		const T GetDeterminant()
 		{
+			if (!isDeterminantDirty)
+				return determinant;
+
 			T detVal = T(0);
 			switch (Size)
 			{
@@ -413,10 +415,23 @@ namespace Math
 				break;
 			}
 
+			determinant = detVal;
+			isDeterminantDirty = false;
+
 			return detVal;
 		}
 		
+		SquareMatrix<T, Size> GetInverse()
+		{
+
+		}
+
 		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
+		bool IsInvertible() 
+		{
+			T det = GetDeterminant();
+			return Equals<T>(det, T(0));
+		}
 	};
 
 	namespace
