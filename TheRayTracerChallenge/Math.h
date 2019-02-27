@@ -40,7 +40,7 @@ namespace Math
 	template<typename T> class Color4;
 	template<typename T, size_t Size> class SquareMatrix;
 	template<typename T, size_t Size>
-	using SquareMatrixArray = std::array<std::array<SquareMatrix<T, Size>, Size - 1>, Size>;
+	using SquareMatrixArray = std::array<std::array<SquareMatrix<T, Size - 1>, Size>, Size>;
 }
 
 namespace
@@ -454,7 +454,6 @@ namespace Math
 		SquareMatrix<T, Size> GetInverse()
 		{
 			SquareMatrix<T, Size> inverse;
-
 			SquareMatrixArray<T, Size> cofactorMatrices = GetCofactorSubmatrices(*this);
 
 
@@ -541,6 +540,7 @@ namespace Math
 						}
 						++line;
 					}
+					cofactorSubmatrices[line][column] = cofactorSubmatrix;
 				}
 			}
 

@@ -881,9 +881,64 @@ namespace Math
 				9.0f, 10.0f, 11.0f,
 				4.0f, 3.0f, 2.0f });
 			Assert::IsTrue(subMatrices[3] == expectation);
-
 		}
 
+		TEST_METHOD(Inverse_GetCofactorMatrices)
+		{
+			auto matrix = SquareMatrix<float, 3>({
+				5.0f, 6.0f, 7.0f,
+				9.0f, 10.0f, 11.0f,
+				4.0f, 3.0f, 2.0f });
+
+			SquareMatrixArray<float, 3> cofactorMatrices = GetCofactorSubmatrices(matrix);
+
+			SquareMatrixArray<float, 3> expectation =
+			{
+				SquareMatrix<float, 2>({
+					10.0f, 11.0f,
+					3.0f, 2.0f}),
+
+				SquareMatrix<float, 2>({
+					9.0f, 11.0f,
+					4.0f, 2.0f}),
+
+				SquareMatrix<float, 2>({
+					9.0f, 10.0f,
+					4.0f, 3.0f}),
+
+				SquareMatrix<float, 2>({
+					6.0f, 7.0f,
+					3.0f, 2.0f}),
+
+				SquareMatrix<float, 2>({
+					5.0f, 7.0f,
+					4.0f, 2.0f}),
+
+				SquareMatrix<float, 2>({
+					5.0f, 6.0f,
+					4.0f, 3.0f}),
+
+				SquareMatrix<float, 2>({
+					6.0f, 7.0f,
+					10.0f, 11.0f}),
+
+				SquareMatrix<float, 2>({
+					5.0f, 7.0f,
+					9.0f, 11.0f}),
+
+				SquareMatrix<float, 2>({
+					5.0f, 6.0f,
+					9.0f, 10.0f})
+			};
+
+			for (size_t i = 0; i < 3; ++i)
+			{
+				for (size_t j = 0; j < 3; ++j)
+				{
+					Assert::IsTrue(expectation[i][j] == cofactorMatrices[i][j]);
+				}
+			}
+		}
 		TEST_METHOD(Inverse_Matrix4)
 		{	
 			//minor = determinant of a submatrix
