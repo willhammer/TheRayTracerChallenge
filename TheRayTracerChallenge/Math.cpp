@@ -884,6 +884,24 @@ namespace Math
 
 		}
 
+		TEST_METHOD(Matrix4_Submatrices)
+		{
+			auto expectation = SquareMatrix<float, 4>({
+				0.21805f, 0.45113f, 0.24060f, -0.04511f
+				-0.80827f, -1.45677f, -0.44361f, 0.52068f,
+				-0.07895f, -0.22368f, -0.05263f, 0.19737f,
+				-0.52256, -0.81391f, -0.30075f, 0.30639f });
+
+			auto matrix = SquareMatrix<float, 4>({
+				-5.0f, 2.0f, 6.0f, -8.0f,
+				1.0f, -5.0f, 1.0f, 8.0f,
+				7.0f, 7.0f, -6.0f, -7.0f,
+				1.0f, -3.0f, 7.0f, 4.0f });
+
+			auto matrixInverse = matrix.GetInverse();
+			Assert::IsTrue(matrixInverse == expectation);
+		}
+
     };
 }
 
