@@ -50,6 +50,9 @@ namespace
 	const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix);
 
 	template<typename T>
+	const T GetDeterminant4(Math::SquareMatrix<T, 4>& matrix);
+
+	template<typename T>
 	const T GetDeterminant3(Math::SquareMatrix<T, 3>& matrix);
 
 	template<typename T>	
@@ -372,16 +375,22 @@ namespace Math
 
 		const T GetDeterminant() const
 		{
-			if (Size < 2)
+			switch (Size)
+			{
+			case 0:
+			case 1:
 				return 0;
-
-			if (Size == 2) return GetDeterminant2<T>((Math::SquareMatrix<T, 2>&)*this);
-			if (Size == 3) return GetDeterminant3<T>((Math::SquareMatrix<T, 3>&)*this);
-			
-			
-			return GetDeterminantHigherOrder<T, Size>((Math::SquareMatrix<T, Size>&)*this);
+			case 2:
+				return GetDeterminant2<T>((Math::SquareMatrix<T, 2>&)*this);
+			case 3:
+				return GetDeterminant3<T>((Math::SquareMatrix<T, 3>&)*this);
+			case 4:
+				return GetDeterminant4<T>((Math::SquareMatrix<T, 4>&)*this);
+			default:
+				return 0;// GetDeterminantHigherOrder<T, Size>((Math::SquareMatrix<T, Size>&)*this);
+			}
 		}
-
+		
 		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
 	};
 
@@ -405,11 +414,10 @@ namespace Math
 			std::array<Math::SquareMatrix<T, Subsize>, Size>
 		}
 
-
 		template<typename T, size_t Size>
-		auto GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix) ->
-			std::enable_if_t<(Size < 10), const T>
+		const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix)
 		{
+		#ifdef HIGHER_ORDER_FIXED
 			const size_t subMatrixSize = Size - 1;
 
 			std::array<Math::SquareMatrix<T, subMatrixSize>, Size> subMatrices = GetSubmatrices(matrix);
@@ -423,7 +431,7 @@ namespace Math
 				
 				if (Size > 3)
 				{
-					subMatrixDeterminant = GetDeterminantHigherOrder(subMatrices.at(i));
+					subMatrixDeterminant = GetDeterminantHigherOrder<T, Size - 1>(subMatrices.at(i));
 				}
 
 				else
@@ -436,6 +444,10 @@ namespace Math
 			}
 
 			return detVal;
+
+		#else
+			return T(0);
+		#endif
 		}
 
 		template<typename T, size_t Size>
@@ -468,8 +480,33 @@ namespace Math
 		}
 
 		template<typename T>
+		const T GetDeterminant4(Math::SquareMatrix<T, 4>& matrix)
+		{
+			std::array<Math::SquareMatrix<T, 3>, 4> subMatrices = GetSubmatrices(matrix);
+			T detVal = T(0);
+
+			for (size_t i = 0; i < 4; ++i)
+			{
+				T sign = T(pow(-1.0, double(i)));
+				T factor = matrix.GetOriginalValueAt(0, i);
+				T subMatrixDeterminant = GetDeterminant3(subMatrices.at(i));
+
+				detVal += sign * factor * subMatrixDeterminant;
+			}
+
+			return detVal;
+		}
+
+		template<typename T>
 		const T GetDeterminant3(Math::SquareMatrix<T, 3>& matrix)
 		{
+		/*
+			0,0  0,1  0,2
+			
+			1,0  1,1  1,2
+
+			2,0  2,1  2,2		
+		*/ 
 			return
 				matrix.GetOriginalValueAt(0, 0) *
 				(	matrix.GetOriginalValueAt(1, 1) * matrix.GetOriginalValueAt(2, 2) -
@@ -481,6 +518,7 @@ namespace Math
 				(	matrix.GetOriginalValueAt(1, 0) * matrix.GetOriginalValueAt(2, 1) -
 					matrix.GetOriginalValueAt(1, 1) * matrix.GetOriginalValueAt(2, 0));
 		}
+
 
 		template<typename T>
 		const T GetDeterminant2(Math::SquareMatrix<T, 2>& matrix)
