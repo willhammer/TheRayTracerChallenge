@@ -526,19 +526,26 @@ namespace Math
 				{
 					SquareMatrix<T, Size - 1> cofactorSubmatrix;
 
-					int line = 0;
+					size_t lineInSubmatrix = 0;
 					for (size_t lineOriginal = 0; lineOriginal < Size; ++lineOriginal)
 					{
-						int column = 0;
+						size_t columnInSubmatrix = 0;
+						if (lineOriginal == line)
+							continue;
+
 						for (size_t columnOriginal = 0; columnOriginal < Size; ++columnOriginal)
 						{
-							if (columnOriginal == column && lineOriginal == line)
+							if (columnOriginal == column)
 								continue;
 
-							cofactorSubmatrix.SetOriginalValueAt(line, column, matrix.GetOriginalValueAt(lineOriginal, columnOriginal));
-							++column;
+							cofactorSubmatrix.SetOriginalValueAt(
+								lineInSubmatrix, 
+								columnInSubmatrix, 
+								matrix.GetOriginalValueAt(lineOriginal, columnOriginal));
+
+							++columnInSubmatrix;
 						}
-						++line;
+						++lineInSubmatrix;
 					}
 					cofactorSubmatrices[line][column] = cofactorSubmatrix;
 				}
