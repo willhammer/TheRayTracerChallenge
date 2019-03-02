@@ -397,23 +397,20 @@ namespace Math
 		SquareMatrix<T, Size> GetCofactors()
 		{
 			SquareMatrix<T, Size> cofactorValues;
-			/*
+			
 			const size_t subMatrixSize = Size - 1;
+			SquareMatrixArray<T, Size> cofactorSubmatrices = GetCofactorSubmatrices(*this);
 
-			std::array<Math::SquareMatrix<T, subMatrixSize>, Size> subMatrices = GetSubmatrices(matrix);
-			T detVal = T(0);
-
-			for (size_t i = 0; i < Size; ++i)
+			for (size_t line = 0; line < Size; ++line)
 			{
-				T sign = T(pow(-1.0, double(i)));
-				T factor = matrix.GetOriginalValueAt(0, i);
-				T subMatrixDeterminant = GetDeterminantHigherOrder<T, subMatrixSize>(subMatrices.at(i));
-
-				detVal += sign * factor * subMatrixDeterminant;
+				for (size_t column = 0; column < Size; ++column)
+				{
+					T sign = T(pow(-1.0, double(Size * line + column)));
+					T value = sign * cofactorSubmatrices[line][column].GetDeterminant();
+					cofactorValues.SetValueAt(line, column, value);
+				}
 			}
 
-			return detVal;
-			*/
 			return cofactorValues;
 		}
 
@@ -500,7 +497,7 @@ namespace Math
 			for (size_t i = 0; i < Size; ++i)
 			{
 				T sign = T(pow(-1.0, double(i)));
-				T factor = matrix.GetOriginalValueAt(0, i);
+				T factor = matrix.GetValueAt(0, i);
 				T subMatrixDeterminant = GetDeterminantHigherOrder<T, subMatrixSize>(subMatrices.at(i));
 				
 				detVal += sign * factor * subMatrixDeterminant;
@@ -538,10 +535,10 @@ namespace Math
 							if (columnOriginal == column)
 								continue;
 
-							cofactorSubmatrix.SetOriginalValueAt(
+							cofactorSubmatrix.SetValueAt(
 								lineInSubmatrix, 
 								columnInSubmatrix, 
-								matrix.GetOriginalValueAt(lineOriginal, columnOriginal));
+								matrix.GetValueAt(lineOriginal, columnOriginal));
 
 							++columnInSubmatrix;
 						}
@@ -571,7 +568,7 @@ namespace Math
 						if (columnOriginal == i)
 							continue;
 						
-						subMatrix.SetOriginalValueAt(line, column, matrix.GetOriginalValueAt(lineOriginal, columnOriginal));
+						subMatrix.SetOriginalValueAt(line, column, matrix.GetValueAt(lineOriginal, columnOriginal));
 						++column;
 					}
 					++line;

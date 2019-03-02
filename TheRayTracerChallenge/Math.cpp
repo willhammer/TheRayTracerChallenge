@@ -939,6 +939,31 @@ namespace Math
 				}
 			}
 		}
+
+		TEST_METHOD(Inverse_GetCofactors)
+		{
+			auto matrix = SquareMatrix<float, 3>({
+				5.0f, 6.0f, 7.0f,
+				9.0f, 10.0f, 11.0f,
+				4.0f, 3.0f, 2.0f });
+
+			SquareMatrix<float, 3> cofactors = matrix.GetCofactors();
+
+			SquareMatrix<float, 3> expectation({
+				-13.0f, 26.0f, -13.0f,
+				9.0f, -18.0f, 9.0f,
+				-4.0f, 8.0f, -4.0f				
+				});
+
+			for (size_t i = 0; i < 3; ++i)
+			{
+				for (size_t j = 0; j < 3; ++j)
+				{
+					Assert::IsTrue(Equalsf(expectation.GetOriginalValueAt(i, j), cofactors.GetOriginalValueAt(i, j)));
+				}
+			}
+		}
+
 		TEST_METHOD(Inverse_Matrix4)
 		{	
 			//minor = determinant of a submatrix
