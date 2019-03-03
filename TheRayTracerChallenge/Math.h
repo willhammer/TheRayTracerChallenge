@@ -50,7 +50,7 @@ namespace
 
 	template<typename T, size_t Size>
 	Math::SquareMatrix<Math::SquareMatrix<T, Size - 1>, Size> GetCofactorSubmatrices(Math::SquareMatrix<T, Size>& matrix);
-
+	
 	template<typename T, size_t Size>
 	const T GetDeterminantHigherOrder(Math::SquareMatrix<T, Size>& matrix);
 
@@ -227,13 +227,17 @@ namespace Math
 	
 	template<typename T, size_t Size> constexpr bool operator== (Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2)
 	{
+		auto epsilon = GetEpsilon<T>();
+
 		for (size_t indexLine = 0; indexLine < Size; ++indexLine)
 		{
 			for (size_t indexColumn = 0; indexColumn < Size; ++indexColumn)
 			{
-				if (!Equals<T>(
-					matrix1.GetValueAt(indexLine, indexColumn), 
-					matrix2.GetValueAt(indexLine, indexColumn)))
+
+				auto value1 = matrix1.GetValueAt(indexLine, indexColumn);
+				auto value2 = matrix2.GetValueAt(indexLine, indexColumn);
+				
+				if (!Equals<T>(value1, value2))
 					return false;
 			}
 		}
@@ -396,7 +400,7 @@ namespace Math
 
 		SquareMatrix<T, Size> GetCofactors()
 		{
-			SquareMatrix<T, Size> cofactorValues;
+			SquareMatrix<T, Size> cofactorValues;			
 			
 			const size_t subMatrixSize = Size - 1;
 			SquareMatrixArray<T, Size> cofactorSubmatrices = GetCofactorSubmatrices(*this);
@@ -405,9 +409,10 @@ namespace Math
 			{
 				for (size_t column = 0; column < Size; ++column)
 				{
-					T sign = T(pow(-1.0, double(Size * line + column)));
-					T value = sign * cofactorSubmatrices[line][column].GetDeterminant();
-					cofactorValues.SetValueAt(line, column, value);
+					//T sign = T(std::pow(-1.0, line + column));
+					T sign = (line + column) % 2 == 0 ? T(1) : T(-1);
+					T value = cofactorSubmatrices[line][column].GetDeterminant();
+					cofactorValues.SetValueAt(line, column, value * sign);
 				}
 			}
 
@@ -450,10 +455,21 @@ namespace Math
 		
 		SquareMatrix<T, Size> GetInverse()
 		{
-			SquareMatrix<T, Size> inverse;
-			SquareMatrixArray<T, Size> cofactorMatrices = GetCofactorSubmatrices(*this);
+			if (!IsInvertible())
+				return Identity();
 
+			SquareMatrix<T, Size> inverse;			
+			SquareMatrix<T, Size> cofactors = GetCofactors();			
+			T determinant = GetDeterminant();
 
+			for (size_t line = 0; line < Size; ++line)
+			{
+				for (size_t column = 0; column < Size; ++column)
+				{
+					auto cofactorValue = cofactors.GetValueAt(line, column);
+					inverse.SetValueAt(column, line, cofactorValue / determinant);
+				}
+			}
 
 			return inverse;
 		}
@@ -462,7 +478,7 @@ namespace Math
 		bool IsInvertible() 
 		{
 			T det = GetDeterminant();
-			return Equals<T>(det, T(0));
+			return !Equals<T>(det, T(0));
 		}
 	};
 
@@ -588,7 +604,7 @@ namespace Math
 
 			for (size_t i = 0; i < 4; ++i)
 			{
-				T sign = T(pow(-1.0, double(i)));
+				T sign = i % 2 == 0 ? T(1) : T(-1);
 				T factor = matrix.GetOriginalValueAt(0, i);
 				T subMatrixDeterminant = GetDeterminant3(subMatrices.at(i));
 

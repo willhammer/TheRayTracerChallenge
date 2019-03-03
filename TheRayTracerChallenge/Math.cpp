@@ -952,8 +952,7 @@ namespace Math
 			SquareMatrix<float, 3> expectation({
 				-13.0f, 26.0f, -13.0f,
 				9.0f, -18.0f, 9.0f,
-				-4.0f, 8.0f, -4.0f				
-				});
+				-4.0f, 8.0f, -4.0f});
 
 			for (size_t i = 0; i < 3; ++i)
 			{
@@ -965,14 +964,12 @@ namespace Math
 		}
 
 		TEST_METHOD(Inverse_Matrix4)
-		{	
-			//minor = determinant of a submatrix
-			//cofactor = determinant of a submatrix * (-1)^minorPosition
+		{
 			auto expectation = SquareMatrix<float, 4>({
-				0.21805f, 0.45113f, 0.24060f, -0.04511f
-				-0.80827f, -1.45677f, -0.44361f, 0.52068f,
-				-0.07895f, -0.22368f, -0.05263f, 0.19737f,
-				-0.52256f, -0.81391f, -0.30075f, 0.30639f });
+				 0.21804511f,  0.45112781f,  0.24060150f, -0.04511278f,
+				-0.80827067f, -1.45676691f, -0.44360902f,  0.52067669f,
+				-0.07894736f, -0.22368421f, -0.05263157f,  0.19736842f,
+				-0.52255639f, -0.81390977f, -0.30075187f,  0.30639097f });
 
 			auto matrix = SquareMatrix<float, 4>({
 				-5.0f, 2.0f, 6.0f, -8.0f,
@@ -983,7 +980,6 @@ namespace Math
 			auto matrixInverse = matrix.GetInverse();
 			Assert::IsTrue(matrixInverse == expectation);
 		}
-
     };
 }
 
