@@ -963,7 +963,7 @@ namespace Math
 			}
 		}
 
-		TEST_METHOD(Inverse_Matrix4)
+		TEST_METHOD(Inverse_Matrix4_Test1)
 		{
 			auto expectation = SquareMatrix<float, 4>({
 				 0.21804511f,  0.45112781f,  0.24060150f, -0.04511278f,
@@ -976,6 +976,42 @@ namespace Math
 				1.0f, -5.0f, 1.0f, 8.0f,
 				7.0f, 7.0f, -6.0f, -7.0f,
 				1.0f, -3.0f, 7.0f, 4.0f });
+
+			auto matrixInverse = matrix.GetInverse();
+			Assert::IsTrue(matrixInverse == expectation);
+		}
+
+		TEST_METHOD(Inverse_Matrix4_Test2)
+		{
+			auto matrix = SquareMatrix<float, 4>({
+				 8.0f, -5.0f,  9.0f,  2.0f,
+				 7.0f,  5.0f,  6.0f,  1.0f,
+				-6.0f,  0.0f,  9.0f,  6.0f,
+				-3.0f,  0.0f, -9.0f, -4.0f });
+
+			auto expectation = SquareMatrix<float, 4>({
+				-0.153846153f, -0.153846153f, -0.282051282f, -0.538461538f,
+				-0.076923076f,  0.123076923f,  0.025641025f,  0.030769230f,
+				 0.358974358f,  0.358974358f,  0.435897435f,  0.923076923f,
+				-0.692307692f, -0.692307692f, -0.769230769f, -1.923076923f });
+
+			auto matrixInverse = matrix.GetInverse();
+			Assert::IsTrue(matrixInverse == expectation);
+		}
+
+		TEST_METHOD(Inverse_Matrix4_Test3)
+		{
+			auto matrix = SquareMatrix<float, 4>({
+				 9.0f,  3.0f,  0.0f,  9.0f,
+				-5.0f, -2.0f, -6.0f, -3.0f,
+				-4.0f,  9.0f,  6.0f,  4.0f,
+				-7.0f,  6.0f,  6.0f,  2.0f });
+
+			auto expectation = SquareMatrix<float, 4>({
+				-0.040740740f, -0.077777777f,  0.144444444f, -0.222222222f,
+				-0.077777777f,  0.033333333f,  0.366666666f, -0.333333333f,
+				-0.029012345f, -0.146296296f, -0.109259259f,  0.129629629f,
+				 0.177777777f,  0.066666666f, -0.266666666f,  0.333333333f });
 
 			auto matrixInverse = matrix.GetInverse();
 			Assert::IsTrue(matrixInverse == expectation);
