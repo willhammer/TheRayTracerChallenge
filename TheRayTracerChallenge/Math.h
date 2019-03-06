@@ -332,7 +332,9 @@ namespace Math
 		std::array<std::array<T, Size>, Size> contents;
 		bool transposed;
 		T determinant;
-		bool isDeterminantDirty;
+		std::array<std::array<T, Size>, Size> contentsInverse;
+		bool isInverseComputed;
+		bool isDeterminantComputed;
 				
 		T& GetValueInternal(size_t line, size_t column)
 		{
@@ -357,25 +359,30 @@ namespace Math
 			contents = std::array<std::array<T, Size>, Size>();
 			transposed = false;
 			determinant = T(0);
-			isDeterminantDirty = true;
+			isDeterminantComputed = false;
+			isInverseComputed = false;
 		}
 
-		SquareMatrix(std::array<std::array<T, Size>, Size> contentsNew)
+		SquareMatrix(std::array<std::array<T, Size>, Size> contentsNew) : SquareMatrix()
 		{
 			contents = contentsNew;
 			transposed = false;
 		}
 
 		void SetOriginalValueAt(size_t line, size_t column, const T& value)
-		{
+		{			
+			isDeterminantComputed = false;
+			isInverseComputed = false;
+
 			contents[line][column] = value;
-			isDeterminantDirty = true;
 		}
 
 		void SetValueAt(size_t line, size_t column, const T& value)
-		{
-			auto& valueToSet = GetValueInternal(line, column);
-			valueToSet = value;
+		{	
+			isDeterminantComputed = false;
+			isInverseComputed = false;
+
+			transposed ? SetOriginalValueAt(column, line, value) : SetOriginalValueAt(line, column, value);
 		}
 
 		const T& GetValueAt(size_t line, size_t column)
@@ -400,7 +407,7 @@ namespace Math
 
 		SquareMatrix<T, Size> GetCofactors()
 		{
-			SquareMatrix<T, Size> cofactorValues;			
+			SquareMatrix<T, Size> cofactorValues;
 			
 			const size_t subMatrixSize = Size - 1;
 			SquareMatrixArray<T, Size> cofactorSubmatrices = GetCofactorSubmatrices(*this);
@@ -409,7 +416,6 @@ namespace Math
 			{
 				for (size_t column = 0; column < Size; ++column)
 				{
-					//T sign = T(std::pow(-1.0, line + column));
 					T sign = (line + column) % 2 == 0 ? T(1) : T(-1);
 					T value = cofactorSubmatrices[line][column].GetDeterminant();
 					cofactorValues.SetValueAt(line, column, value * sign);
@@ -418,13 +424,11 @@ namespace Math
 
 			return cofactorValues;
 		}
-
-
-
+		
 		const T GetDeterminant()
 		{
-			if (!isDeterminantDirty)
-				return determinant;
+			if (isDeterminantComputed)
+ 				return determinant;
 
 			T detVal = T(0);
 			switch (Size)
@@ -448,15 +452,21 @@ namespace Math
 			}
 
 			determinant = detVal;
-			isDeterminantDirty = false;
+			isDeterminantComputed = true;
 
 			return detVal;
 		}
 		
 		SquareMatrix<T, Size> GetInverse()
 		{
-			if (!IsInvertible())
+			if (!IsInvertible())			
+			{
+				isInverseComputed = false;
 				return Identity();
+			}
+			
+			if (isInverseComputed)
+				return SquareMatrix<T, Size>(contentsInverse);
 
 			SquareMatrix<T, Size> inverse;			
 			SquareMatrix<T, Size> cofactors = GetCofactors();			
@@ -467,11 +477,12 @@ namespace Math
 				for (size_t column = 0; column < Size; ++column)
 				{
 					auto cofactorValue = cofactors.GetValueAt(line, column);
-					inverse.SetValueAt(column, line, cofactorValue / determinant);
+					contentsInverse[column][line] = cofactorValue / determinant;
 				}
 			}
-
-			return inverse;
+						
+			isInverseComputed = true;
+			return SquareMatrix<T, Size>(contentsInverse);
 		}
 
 		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
@@ -617,13 +628,6 @@ namespace Math
 		template<typename T>
 		const T GetDeterminant3(Math::SquareMatrix<T, 3>& matrix)
 		{
-		/*
-			0,0  0,1  0,2
-			
-			1,0  1,1  1,2
-
-			2,0  2,1  2,2		
-		*/ 
 			return
 				matrix.GetOriginalValueAt(0, 0) *
 				(	matrix.GetOriginalValueAt(1, 1) * matrix.GetOriginalValueAt(2, 2) -

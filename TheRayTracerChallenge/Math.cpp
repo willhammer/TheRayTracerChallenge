@@ -963,6 +963,18 @@ namespace Math
 			}
 		}
 
+		TEST_METHOD(Inverse_Matrix4_Identity)
+		{
+			auto matrix = SquareMatrix<float, 4>({
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f });
+
+			auto matrixInverse = matrix.GetInverse();
+			Assert::IsTrue(matrixInverse == matrix);
+		}
+
 		TEST_METHOD(Inverse_Matrix4_Test1)
 		{
 			auto expectation = SquareMatrix<float, 4>({
@@ -979,6 +991,9 @@ namespace Math
 
 			auto matrixInverse = matrix.GetInverse();
 			Assert::IsTrue(matrixInverse == expectation);
+
+			Assert::IsTrue(matrix * matrixInverse == SquareMatrix<float, 4>::Identity());
+
 		}
 
 		TEST_METHOD(Inverse_Matrix4_Test2)
@@ -997,6 +1012,7 @@ namespace Math
 
 			auto matrixInverse = matrix.GetInverse();
 			Assert::IsTrue(matrixInverse == expectation);
+			Assert::IsTrue(matrix * matrixInverse == SquareMatrix<float, 4>::Identity());
 		}
 
 		TEST_METHOD(Inverse_Matrix4_Test3)
@@ -1015,6 +1031,7 @@ namespace Math
 
 			auto matrixInverse = matrix.GetInverse();
 			Assert::IsTrue(matrixInverse == expectation);
+			Assert::IsTrue(matrix * matrixInverse == SquareMatrix<float, 4>::Identity());
 		}
     };
 }
