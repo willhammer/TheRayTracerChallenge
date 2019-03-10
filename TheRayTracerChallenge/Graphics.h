@@ -6,17 +6,20 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include "Math.h"
 
 
-namespace M = Math;
-using Color4f = M::Color4<float>;
-using Tuple4f = M::Tuple4<float>;
-using H = Math::Helpers;
-using C = Math::Helpers::Coordinate;
-using CI = Math::Helpers::ColorInput;
+namespace Math
+{
+	template<typename T>
+	class Color4;
 
-#define CANVAS_HEADER_LINES 3
+	template<typename T>
+	class Tuple4;
+}
+
+using Color4f = Math::Color4<float>;
+using Tuple4f = Math::Tuple4<float>;
+
 
 namespace Graphics
 {

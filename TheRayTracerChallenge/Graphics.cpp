@@ -1,15 +1,25 @@
 #include "stdafx.h"
 #include "Graphics.h"
+#include "Math.h"
 
 #include <sstream>
 #include <array>
 
 #include <iomanip>
 
+
+
 #ifdef _MSC_VER
 #include "CppUnitTest.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #endif
+
+
+#define CANVAS_HEADER_LINES 3
+
+using H = Math::Helpers;
+using C = Math::Helpers::Coordinate;
+using CI = Math::Helpers::ColorInput;
 
 namespace
 {
@@ -30,7 +40,7 @@ namespace
 	}
 
 	template<typename T>
-	std::array<int, 3> GetIntColor(const int maxIntValue, const M::Color4<T> color)
+	std::array<int, 3> GetIntColor(const int maxIntValue, const Math::Color4<T> color)
 	{
 		std::array<int, 3> colorInt;
 
@@ -199,7 +209,7 @@ namespace Graphics
 		size_t index = 0;
 		
 		std::vector<std::string> lines = ReadPPMBodyRaw(ifs);		
-		M::Tuple4<float> colorContents(0.0f, 0.0f, 0.0f, 0.5f);
+		Math::Tuple4<float> colorContents(0.0f, 0.0f, 0.0f, 0.5f);
 		
 		for (auto& line : lines)
 		{

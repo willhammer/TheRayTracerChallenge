@@ -15,6 +15,8 @@ using CI = Math::Helpers::ColorInput;
 
 namespace Math
 {
+
+
 	template<typename T>
 	constexpr M::Tuple4<T> AddTuples(const M::Tuple4<T>& first, const M::Tuple4<T>& second)
 	{

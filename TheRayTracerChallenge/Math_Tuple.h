@@ -58,8 +58,9 @@ namespace Math
 		struct HasValidInput<Coordinate> { constexpr static bool value = true; };
 
 	public:
+
 		template<typename N, template<typename> typename U, typename T>
-		static constexpr auto Get(const U<T>& tupleInput, const N value)
+		static auto Get(const U<T>& tupleInput, const N value)
 			->std::enable_if_t<HasValidInput<N>::value, T>
 		{
 			switch (value)
@@ -82,7 +83,7 @@ namespace Math
 		}
 
 		template<typename N, template<typename> typename U, typename T>
-		static constexpr auto Set(U<T>& tupleInput, const N member, const T value)
+		static auto Set(U<T>& tupleInput, const N member, const T value)
 			->std::enable_if_t<HasValidInput<N>::value, void>
 		{
 			switch (member)
@@ -106,7 +107,7 @@ namespace Math
 				break;
 			}
 		}
-
+		
 		template<typename T> static Point4<T> MakePoint(const T& x, const T& y, const T& z);
 		template<typename T> static Vector4<T> MakeVector(const T& x, const T& y, const T& z);
 		template<typename T> static Color4<T> MakeColor(const T& r, const T& g, const T& b, const T& a);
@@ -122,116 +123,116 @@ namespace Math
 
 
 	template<typename T, size_t Size> Math::Vector4<T>
-		operator*(const Math::Vector4<T>& vector, Math::SquareMatrix<T, Size>& matrix);
+	operator*(const Math::Vector4<T>& vector, Math::SquareMatrix<T, Size>& matrix);
 
-		template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
-		template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
-		template<typename T> void				operator*= (Math::Color4<T>& color, const Math::Color4<T>& colorOther);
+	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
+	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
+	template<typename T> void				operator*= (Math::Color4<T>& color, const Math::Color4<T>& colorOther);
 
-		template<typename T> Math::Vector4<T>	operator/(const Math::Vector4<T>& vector, const T scalar);
-		template<typename T> Math::Color4<T>	operator/(const Math::Color4<T>& color, const T scalar);
+	template<typename T> Math::Vector4<T>	operator/(const Math::Vector4<T>& vector, const T scalar);
+	template<typename T> Math::Color4<T>	operator/(const Math::Color4<T>& color, const T scalar);
 
-		template<typename T> void				operator/= (Math::Vector4<T>& vector, const T scalar);
-		template<typename T> void				operator/= (Math::Color4<T>& color, const T scalar);
+	template<typename T> void				operator/= (Math::Vector4<T>& vector, const T scalar);
+	template<typename T> void				operator/= (Math::Color4<T>& color, const T scalar);
 
-		template<typename T> Math::Point4<T>	operator+ (const Math::Point4<T>& first, const Math::Vector4<T>& second);
-		template<typename T> Math::Vector4<T>	operator+ (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
-		template<typename T> Math::Color4<T>	operator+ (const Math::Color4<T>& first, const Math::Color4<T>& second);
+	template<typename T> Math::Point4<T>	operator+ (const Math::Point4<T>& first, const Math::Vector4<T>& second);
+	template<typename T> Math::Vector4<T>	operator+ (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
+	template<typename T> Math::Color4<T>	operator+ (const Math::Color4<T>& first, const Math::Color4<T>& second);
 
-		template<typename T> Math::Point4<T>	operator- (const Math::Point4<T>& first, const Math::Vector4<T>& second);
-		template<typename T> Math::Vector4<T>	operator- (const Math::Point4<T>& first, const Math::Point4<T>& second);
-		template<typename T> Math::Vector4<T>	operator- (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
-		template<typename T> Math::Color4<T>	operator- (const Math::Color4<T>& first, const Math::Color4<T>& second);
-
-
-
-
-
-		/* Y is up, Z points away from the camera */
-		template<typename T>
-		class Tuple4
-		{
-			friend class Point4<T>;
-			friend class Vector4<T>;
-			friend class Color4<T>;
-			friend class Helpers;
-		private:
-			T x, y, z, w;
-
-		public:
-			Tuple4(T x, T y, T z, T w);
-			Tuple4          GetNegated();
-			void            Negate();
-		};
-
-		template<typename T>
-		class Point4 : public Tuple4<T>
-		{
-		private:
-			friend class Helpers;
-			using Tuple4::Tuple4;
-
-			Point4(T x, T y, T z);
-			Point4(const Tuple4<T>& input) : Point4{
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::Y),
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::Z) } { }
-		public:
-			Point4() : Point4(T{ 0 }, T{ 0 }, T{ 0 }) {};
-		};
-
-		template<typename T>
-		class Vector4 : public Tuple4<T>
-		{
-		private:
-			friend class Helpers;
-			using Tuple4::Tuple4;
-
-			Vector4(T x, T y, T z);
-			Vector4(const Tuple4<T>& input) : Vector4{
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::Y),
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::Z) } { }
-		public:
-			inline constexpr T          GetMagnitudeSquared() const;
-			inline constexpr T          GetMagnitude() const;
-			inline constexpr T          Dot(const Vector4<T>& other) const;
-			inline constexpr Vector4<T> Cross(const Vector4<T>& other) const;
-
-			Vector4         GetNormalized() const;
-			void            Normalize();
-
-		public:
-			Vector4() : Vector4(T{ 0 }, T{ 0 }, T{ 0 }) {};
-		};
-
-		template<typename T>
-		class Color4 : public Tuple4<T>
-		{
-		private:
-			friend class Helpers;
-			using Tuple4::Tuple4;
-
-			Color4(T r, T g, T b, T a);
-			Color4(const Tuple4<T>& input) : Color4{
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::Y),
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::Z),
-				Math::Helpers::Get(input, Math::Helpers::Coordinate::W) } { }
-
-		public:
-			Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }, T{ 0.5 }) {};
-			inline constexpr void Hadamard(const Color4<T>& other); /*Color * Color multiplication*/
-		};
+	template<typename T> Math::Point4<T>	operator- (const Math::Point4<T>& first, const Math::Vector4<T>& second);
+	template<typename T> Math::Vector4<T>	operator- (const Math::Point4<T>& first, const Math::Point4<T>& second);
+	template<typename T> Math::Vector4<T>	operator- (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
+	template<typename T> Math::Color4<T>	operator- (const Math::Color4<T>& first, const Math::Color4<T>& second);
 
 
 
 
 
+	/* Y is up, Z points away from the camera */
+	template<typename T>
+	class Tuple4
+	{
+		friend class Point4<T>;
+		friend class Vector4<T>;
+		friend class Color4<T>;
+		friend class Helpers;
+	private:
+		T x, y, z, w;
 
-		using Point4f = Math::Point4<float>;
-		using Vector4f = Math::Vector4<float>;
-		using Tuple4f = Math::Tuple4<float>;
+	public:
+		Tuple4(T x, T y, T z, T w);
+		Tuple4          GetNegated();
+		void            Negate();
+	};
+
+	template<typename T>
+	class Point4 : public Tuple4<T>
+	{
+	private:
+		friend class Helpers;
+		using Tuple4::Tuple4;
+
+		Point4(T x, T y, T z);
+		Point4(const Tuple4<T>& input) : Point4{
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::Y),
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::Z) } { }
+	public:
+		Point4() : Point4(T{ 0 }, T{ 0 }, T{ 0 }) {};
+	};
+
+	template<typename T>
+	class Vector4 : public Tuple4<T>
+	{
+	private:
+		friend class Helpers;
+		using Tuple4::Tuple4;
+
+		Vector4(T x, T y, T z);
+		Vector4(const Tuple4<T>& input) : Vector4{
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::Y),
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::Z) } { }
+	public:
+		inline constexpr T          GetMagnitudeSquared() const;
+		inline constexpr T          GetMagnitude() const;
+		inline constexpr T          Dot(const Vector4<T>& other) const;
+		inline constexpr Vector4<T> Cross(const Vector4<T>& other) const;
+
+		Vector4         GetNormalized() const;
+		void            Normalize();
+
+	public:
+		Vector4() : Vector4(T{ 0 }, T{ 0 }, T{ 0 }) {};
+	};
+
+	template<typename T>
+	class Color4 : public Tuple4<T>
+	{
+	private:
+		friend class Helpers;
+		using Tuple4::Tuple4;
+
+		Color4(T r, T g, T b, T a);
+		Color4(const Tuple4<T>& input) : Color4{
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::X),
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::Y),
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::Z),
+			Math::Helpers::Get(input, Math::Helpers::Coordinate::W) } { }
+
+	public:
+		Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }, T{ 0.5 }) {};
+		inline constexpr void Hadamard(const Color4<T>& other); /*Color * Color multiplication*/
+	};
+
+
+
+
+
+
+	using Point4f = Math::Point4<float>;
+	using Vector4f = Math::Vector4<float>;
+	using Tuple4f = Math::Tuple4<float>;
 
 }
 
