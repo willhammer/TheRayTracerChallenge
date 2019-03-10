@@ -216,18 +216,11 @@ namespace Math
 	}
 }
 
-
-
-
-
-
-
-
 #pragma region Math Tests
 #ifdef _MSC_VER
 namespace Math
 {
-	TEST_CLASS(MathTest)
+	TEST_CLASS(TestMathMatrix)
 	{
 
 	public:

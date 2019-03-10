@@ -199,6 +199,7 @@ namespace Math
 		}
 
 		void SetTransposed(bool setTransposed) { transposed = setTransposed; }
+		
 		bool IsInvertible()
 		{
 			T det = GetDeterminant();

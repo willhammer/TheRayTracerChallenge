@@ -95,9 +95,6 @@ namespace Math
 		return retVal;
 	}
 
-
-
-
 	template<typename T>
 	Math::Vector4<T> operator*(
 		const Math::Vector4<T>& vector,
@@ -305,7 +302,7 @@ namespace Math
 #ifdef _MSC_VER
 namespace Math
 {
-	TEST_CLASS(MathTest)
+	TEST_CLASS(TestMathTuple)
 	{
 
 	public:
@@ -619,8 +616,6 @@ namespace Math
 
 			Assert::IsTrue(expectedResult == multiplicationResult);
 		}
-
-
 	};
 }
 
