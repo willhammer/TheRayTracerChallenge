@@ -2,6 +2,8 @@
 #include "Gameplay.h"
 #include "Graphics.h"
 
+#include "Math_Tuple.h"
+
 #ifdef _MSC_VER
 #include "CppUnitTest.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

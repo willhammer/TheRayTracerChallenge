@@ -4,15 +4,14 @@
 #include <limits>
 #include <variant>
 
-#include "Math.h"
-
-
-using Point4f = Math::Point4<float>;
-using Vector4f = Math::Vector4<float>;
-using Tuple4f = Math::Tuple4<float>;
+#include "Math_Tuple.h"
 
 namespace Gameplay
 {
+	using Point4f = Math::Point4<float>;
+	using Vector4f = Math::Vector4<float>;
+	using Tuple4f = Math::Tuple4<float>;
+
 	class Environment
 	{
 	public:

@@ -2,8 +2,6 @@
 
 #include "Math_Common.h"
 
-
-
 namespace
 {
 	static const char* DEFAULT_ASSERT_MESSAGE = "Assert triggered";
@@ -23,9 +21,6 @@ namespace
 			throw std::exception(ConstructAssertMessage(message).c_str());
 	}
 }
-
-
-
 
 namespace Math
 {
@@ -120,10 +115,8 @@ namespace Math
 	template<typename T> Math::Vector4<T>	operator*(const Math::Vector4<T>& vector, const T scalar);
 	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color, const T scalar);
 	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color1, const Math::Color4<T>& color2);
-
-
-	template<typename T, size_t Size> Math::Vector4<T>
-	operator*(const Math::Vector4<T>& vector, Math::SquareMatrix<T, Size>& matrix);
+	template<typename T, size_t Size>	
+	Math::Vector4<T>						operator*(const Math::Vector4<T>& vector, Math::SquareMatrix<T, Size>& matrix);
 
 	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
 	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
@@ -143,11 +136,7 @@ namespace Math
 	template<typename T> Math::Vector4<T>	operator- (const Math::Point4<T>& first, const Math::Point4<T>& second);
 	template<typename T> Math::Vector4<T>	operator- (const Math::Vector4<T>& first, const Math::Vector4<T>& second);
 	template<typename T> Math::Color4<T>	operator- (const Math::Color4<T>& first, const Math::Color4<T>& second);
-
-
-
-
-
+	
 	/* Y is up, Z points away from the camera */
 	template<typename T>
 	class Tuple4
@@ -224,12 +213,7 @@ namespace Math
 		Color4() : Color4(T{ 0 }, T{ 0 }, T{ 0 }, T{ 0.5 }) {};
 		inline constexpr void Hadamard(const Color4<T>& other); /*Color * Color multiplication*/
 	};
-
-
-
-
-
-
+	
 	using Point4f = Math::Point4<float>;
 	using Vector4f = Math::Vector4<float>;
 	using Tuple4f = Math::Tuple4<float>;
