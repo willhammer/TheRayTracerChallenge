@@ -101,7 +101,32 @@ namespace Math
 		Math::SquareMatrix<T, 4>& matrix)
 	{
 		M::Tuple4<T> retValT = MultiplyTupleByMatrix(static_cast<M::Tuple4<T>>(vector), matrix);
-		return  H::MakeVector(retValT);
+		return H::MakeVector(retValT);
+	}
+
+	template<typename T> 
+	Math::Vector4<T> operator*(
+		Math::SquareMatrix<T, 4>& matrix,
+		const Math::Vector4<T>& vector)
+	{
+		return vector * matrix;
+	}
+
+	template<typename T> 
+	Math::Point4<T> operator*(
+		const Math::Point4<T>& point, 
+		Math::SquareMatrix<T, 4>& matrix)
+	{
+		M::Tuple4<T> retValT = MultiplyTupleByMatrix(static_cast<M::Tuple4<T>>(point), matrix);
+		return H::MakePoint(retValT);
+	}
+
+	template<typename T> 
+	Math::Point4<T> operator*(
+		Math::SquareMatrix<T, 4>& matrix,
+		const Math::Point4<T>& point)
+	{
+		return point * matrix;
 	}
 
 	template<typename T> M::Vector4<T> operator/(const M::Vector4<T>& vector, const T scalar)
@@ -567,8 +592,6 @@ namespace Math
 			Assert::IsTrue(Equalsf(H::Get(color1, CI::A), 0.2f));
 		}
 
-
-
 		TEST_METHOD(VectorByMatrixMultiplication)
 		{
 			auto vector = H::MakeVector<float>(1.0f, 2.0f, 3.0f);
@@ -591,6 +614,29 @@ namespace Math
 
 			Assert::IsTrue(expectedResult == multiplicationResult);
 		}
+
+		TEST_METHOD(PointByMatrixMultiplication)
+		{
+			auto point = H::MakePoint<float>(1.0f, 2.0f, 3.0f);
+			auto matrix = SquareMatrix<float, 4>::Identity();
+
+			auto multiplicationResult = point * matrix;
+			auto expectedResult = point;
+
+			Assert::IsTrue(expectedResult == multiplicationResult);
+
+			matrix = SquareMatrix<float, 4>({
+				1.0f, 2.0f, 3.0f, 4.0f,
+				5.0f, 6.0f, 7.0f, 8.0f,
+				9.0f, 10.0f, 11.0f, 12.0f,
+				13.0f, 14.0f, 15.0f, 16.0f });
+			
+			expectedResult = H::MakePoint<float>(18.0f, 46.0f, 74.0f);
+			multiplicationResult = point * matrix;
+
+			Assert::IsTrue(expectedResult == multiplicationResult);
+		}
+
 
 		TEST_METHOD(VectorByMatrixMultiplicationTransposed)
 		{

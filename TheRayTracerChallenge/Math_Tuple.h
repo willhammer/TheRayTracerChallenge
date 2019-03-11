@@ -115,7 +115,12 @@ namespace Math
 	template<typename T> Math::Vector4<T>	operator*(const Math::Vector4<T>& vector, const T scalar);
 	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color, const T scalar);
 	template<typename T> Math::Color4<T>	operator*(const Math::Color4<T>& color1, const Math::Color4<T>& color2);
+	
 	template<typename T> Math::Vector4<T>	operator*(const Math::Vector4<T>& vector, Math::SquareMatrix<T, 4>& matrix);
+	template<typename T> Math::Vector4<T>	operator*(Math::SquareMatrix<T, 4>& matrix, const Math::Vector4<T>& vector);
+	
+	template<typename T> Math::Point4<T>	operator*(const Math::Point4<T>& point, Math::SquareMatrix<T, 4>& matrix);
+	template<typename T> Math::Point4<T>	operator*(Math::SquareMatrix<T, 4>& matrix, const Math::Point4<T>& point);
 
 	template<typename T> void				operator*= (Math::Vector4<T>& vector, const T scalar);
 	template<typename T> void				operator*= (Math::Color4<T>& color, const T scalar);
