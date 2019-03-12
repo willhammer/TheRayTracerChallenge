@@ -123,14 +123,6 @@ namespace Math
 			auto point = H::MakePoint<float>(-4.0f, 6.0f, 8.0f);
 			auto vector = H::MakeVector<float>(-4.0f, 6.0f, 8.0f);
 			auto scaling = Transform<float>::MakeScaling(2.0f, 3.0f, 4.0f);
-
-			auto pi = PiFloat;
-			auto piBy2 = PiFloat * 0.5f;
-
-			auto piDouble = PiDouble;
-
-			volatile int a = 5;
-
 		}
 
 
