@@ -9,6 +9,9 @@
 
 #define IsA(T, Y) std::is_base_of_v<T, Y>
 #define Equalsf Math::Equals<float>
+#define Equalsd Math::Equals<double>
+#define PiFloat Math::GetPi<float>()
+#define PiDouble Math::GetPi<double>()
 
 namespace Math
 {
@@ -37,6 +40,14 @@ namespace Math
 		-> std::enable_if_t<std::is_floating_point_v<T>, T>
 	{
 		return std::numeric_limits<T>::epsilon() * T(10);
+	}
+
+	template<typename T> 
+	constexpr auto GetPi()
+		->std::enable_if_t<std::is_floating_point_v<T>, T>
+	{
+		static T pi = T(3.141592653589793238462643383279502884197169399375105820974944592307816406286);
+		return pi;
 	}
 
 	template<typename T> inline auto AlmostEquals(const T& first, const T& second)

@@ -29,7 +29,10 @@ namespace Math
 	template<typename T>
 	SquareMatrix<T, 4> Transform<T>::MakeScaling(const T x, const T y, const T z)
 	{
-		SquareMatrix<T, 4> scaling;
+		SquareMatrix<T, 4> scaling = SquareMatrix<T, 4>::Identity();
+		scaling.SetOriginalValueAt(0, 0, x);
+		scaling.SetOriginalValueAt(1, 1, y);
+		scaling.SetOriginalValueAt(2, 2, z);
 		return scaling;
 	}
 
@@ -95,7 +98,42 @@ namespace Math
 			Assert::IsTrue(Equalsf(H::Get(translatedVector, C::X), -3.0f));
 			Assert::IsTrue(Equalsf(H::Get(translatedVector, C::Y), 4.0f));
 			Assert::IsTrue(Equalsf(H::Get(translatedVector, C::Z), 5.0f));
-		}	
+		}
+
+		TEST_METHOD(Transform_VectorScaling)
+		{
+			auto point = H::MakePoint<float>(0.0f, 1.0f, 0.0f);
+			auto vector = H::MakeVector<float>(0.0f, 1.0f, 0.0f);
+			auto scaling = Transform<float>::MakeScaling(2.0f, 3.0f, 4.0f);
+
+			auto translatedVector = vector * scaling;
+			auto translatedPoint = point * scaling;
+
+			Assert::IsTrue(Equalsf(H::Get(translatedPoint, C::X), -8.0f));
+			Assert::IsTrue(Equalsf(H::Get(translatedPoint, C::Y), 18.0f));
+			Assert::IsTrue(Equalsf(H::Get(translatedPoint, C::Z), 32.0f));
+
+			Assert::IsTrue(Equalsf(H::Get(translatedVector, C::X), -8.0f));
+			Assert::IsTrue(Equalsf(H::Get(translatedVector, C::Y), 18.0f));
+			Assert::IsTrue(Equalsf(H::Get(translatedVector, C::Z), 32.0f));
+		}
+
+		TEST_METHOD(Transform_VectorRotation)
+		{
+			auto point = H::MakePoint<float>(-4.0f, 6.0f, 8.0f);
+			auto vector = H::MakeVector<float>(-4.0f, 6.0f, 8.0f);
+			auto scaling = Transform<float>::MakeScaling(2.0f, 3.0f, 4.0f);
+
+			auto pi = PiFloat;
+			auto piBy2 = PiFloat * 0.5f;
+
+			auto piDouble = PiDouble;
+
+			volatile int a = 5;
+
+		}
+
+
 	};
 }
 #endif
