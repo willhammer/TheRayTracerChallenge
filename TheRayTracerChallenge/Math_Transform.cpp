@@ -101,7 +101,8 @@ namespace Math
 {
 
 	template<typename T>
-	SquareMatrix<T, 4> Transform<T>::MakeTranslation(const T x, const T y, const T z)
+	auto Transform<T>::MakeTranslation(const T x, const T y, const T z) ->
+		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
 	{
 		SquareMatrix<T, 4> translation = SquareMatrix<T, 4>::Identity();
 		translation.SetOriginalValueAt(0, 3, x);
@@ -112,7 +113,8 @@ namespace Math
 	}
 
 	template<typename T>
-	SquareMatrix<T, 4> Transform<T>::MakeScaling(const T x, const T y, const T z)
+	auto Transform<T>::MakeScaling(const T x, const T y, const T z) ->
+		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
 	{
 		SquareMatrix<T, 4> scaling = SquareMatrix<T, 4>::Identity();
 		scaling.SetOriginalValueAt(0, 0, x);
@@ -129,6 +131,23 @@ namespace Math
 		return rotation;
 	}
 
+	template<typename T>
+	auto Transform<T>::MakeShearing(
+		const T xOverY, const T xOverZ,
+		const T yOverX, const T yOverZ,
+		const T zOverX, const T zOverY) ->
+		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	{
+		SquareMatrix<T, 4> shearing = SquareMatrix<T, 4>::Identity();
+		shearing.SetOriginalValueAt(0, 1, xOverY);
+		shearing.SetOriginalValueAt(0, 2, xOverZ);
+
+		shearing.SetOriginalValueAt(1, 0, yOverX);
+		shearing.SetOriginalValueAt(1, 2, yOverZ);
+
+		shearing.SetOriginalValueAt(2, 0, zOverX);
+		shearing.SetOriginalValueAt(2, 1, zOverY);
+	}
 
 	template<typename T>
 	SquareMatrix<T, 4> Transform<T>::GetTranslation()

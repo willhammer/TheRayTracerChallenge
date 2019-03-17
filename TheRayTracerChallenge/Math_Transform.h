@@ -11,11 +11,20 @@ namespace Math
 	class Transform : public SquareMatrix<T, 4>
 	{
 	public:
-		static SquareMatrix<T, 4> MakeTranslation(const T x, const T y, const T z);
-		static SquareMatrix<T, 4> MakeScaling(const T x, const T y, const T z);
+		static auto MakeTranslation(const T x, const T y, const T z) ->
+			std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>;
+
+		static auto MakeScaling(const T x, const T y, const T z) ->
+			std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>;
+
 		static auto MakeRotationEuler(const T angleX, const T angleY, const T angleZ) ->
 			std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>;
 
+		static auto MakeShearing(
+			const T xOverY, const T xOverZ, 
+			const T yOverX, const T yOverZ,
+			const T zOverX, const T zOverY) ->
+			std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>;
 
 		SquareMatrix<T, 4> GetTranslation();
 		SquareMatrix<T, 4> GetScaling();
