@@ -43,12 +43,35 @@ namespace Math
 	}
 
 	template<typename T> 
-	constexpr auto GetPi()
-		->std::enable_if_t<std::is_floating_point_v<T>, T>
+	constexpr auto GetPi() -> std::enable_if_t<std::is_floating_point_v<T>, T>
 	{
-		static T pi = T(3.141592653589793238462643383279502884197169399375105820974944592307816406286);
+		static const T pi = T(3.141592653589793238462643383279502884197169399375105820974944592307816406286);
 		return pi;
 	}
+
+	template<typename T>
+	constexpr auto Get4Pi() -> std::enable_if_t<std::is_floating_point_v<T>, T> 
+	{ return GetPi<T>() * T(4); }
+
+	template<typename T>
+	constexpr auto Get3Pi() -> std::enable_if_t<std::is_floating_point_v<T>, T> 
+	{ return GetPi<T>() * T(3); }
+
+	template<typename T>
+	constexpr auto Get2Pi() -> std::enable_if_t<std::is_floating_point_v<T>, T> 
+	{ return GetPi<T>() * T(2); }
+	
+	template<typename T>
+	constexpr auto GetPiBy2() -> std::enable_if_t<std::is_floating_point_v<T>, T> 
+	{ return GetPi<T>() * T(0.5); }
+	
+	template<typename T>
+	constexpr auto GetPiBy4() -> std::enable_if_t<std::is_floating_point_v<T>, T> 
+	{ return GetPi<T>() * T(0.25); }
+
+	template<typename T>
+	constexpr auto GetPiBy6() -> std::enable_if_t<std::is_floating_point_v<T>, T> 
+	{ return GetPi<T>() / T(6); }
 
 	template<typename T> inline auto AlmostEquals(const T& first, const T& second)
 		-> std::enable_if_t<std::is_floating_point_v<T>, bool>

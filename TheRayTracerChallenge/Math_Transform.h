@@ -13,7 +13,8 @@ namespace Math
 	public:
 		static SquareMatrix<T, 4> MakeTranslation(const T x, const T y, const T z);
 		static SquareMatrix<T, 4> MakeScaling(const T x, const T y, const T z);
-		static SquareMatrix<T, 4> MakeRotation(const T angleX, T angleY, T angleZ);
+		static auto MakeRotationEuler(const T angleX, const T angleY, const T angleZ) ->
+			std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>;
 
 
 		SquareMatrix<T, 4> GetTranslation();

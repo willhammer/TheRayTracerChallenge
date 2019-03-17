@@ -56,6 +56,17 @@ namespace Math
 
 	public:
 
+		static SquareMatrix Zero()
+		{
+			SquareMatrix<T, Size> zero;
+			for (size_t i = 0; i < Size; ++i)
+			{
+				zero.SetOriginalValueAt(i, i, T(0));
+			}
+
+			return zero;
+		}
+
 		static SquareMatrix Identity()
 		{
 			SquareMatrix<T, Size> identity;
