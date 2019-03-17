@@ -66,6 +66,12 @@ namespace
 		return rotation;
 	}
 
+	template<typename T>
+	auto MakeRotationCompound(const T radiansX, const T radiansY, const T radiansZ) ->
+		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	{
+		return MakeRotationX<T>(radiansX) * MakeRotationY<T>(radiansY) * MakeRotationZ<T>(radiansZ);
+	}
 
 	template<typename T>
 	auto MakeRotationInplace(const T radiansX, const T radiansY, const T radiansZ) ->
@@ -118,10 +124,8 @@ namespace Math
 	template<typename T>
 	auto Transform<T>::MakeRotationEuler(const T radiansX, const T radiansY, const T radiansZ) ->
 		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
-	{
-		SquareMatrix<T, 4> rotation = 
-			MakeRotationX<T>(radiansX) * MakeRotationY<T>(radiansY) * MakeRotationZ<T>(radiansZ);
-
+	{		
+		MakeRotationInplace(radiansX, radiansY, radiansZ);
 		return rotation;
 	}
 
@@ -202,16 +206,67 @@ namespace Math
 
 		TEST_METHOD(Transform_VectorRotation)
 		{
+			auto sqr2Over2 = 0.70710678118f;
+
 			auto pointX = H::MakePoint<float>(0.0f, 1.0f, 0.0f);
 			auto pointY = H::MakePoint<float>(0.0f, 0.0f, 1.0f);
 			auto pointZ = H::MakePoint<float>(0.0f, 1.0f, 0.0f);
 
-			auto rotation = Transform<float>::MakeRotationEuler(GetPiBy2<float>(), 0.0f, 0.0f);
+			//rotation around the X axis
+			//90*
+			auto rotation = MakeRotationCompound(GetPiBy2<float>(), 0.0f, 0.0f);
 			auto rotationInplace = MakeRotationInplace(GetPiBy2<float>(), 0.0f, 0.0f);
 			Assert::IsTrue(rotation == rotationInplace);
 
 			auto pointRotated = pointX * rotation;
 			auto pointRotatedExpectation = H::MakePoint<float>(0.0f, 0.0f, 1.0f);
+			Assert::IsTrue(pointRotated == pointRotatedExpectation);
+			
+			//45*d
+			rotation = MakeRotationCompound(GetPiBy4<float>(), 0.0f, 0.0f);
+			rotationInplace = MakeRotationInplace(GetPiBy4<float>(), 0.0f, 0.0f);
+			Assert::IsTrue(rotation == rotationInplace);
+
+			pointRotated = pointX * rotation;
+			pointRotatedExpectation = H::MakePoint<float>(0.0f, sqr2Over2, sqr2Over2);
+			Assert::IsTrue(pointRotated == pointRotatedExpectation);
+
+			//rotation around the Y axis
+			//90*
+			rotation = MakeRotationCompound(0.0f, GetPiBy2<float>(), 0.0f);
+			rotationInplace = MakeRotationInplace(0.0f, GetPiBy2<float>(), 0.0f);
+			Assert::IsTrue(rotation == rotationInplace);
+
+			pointRotated = pointY * rotation;
+			pointRotatedExpectation = H::MakePoint<float>(1.0f, 0.0f, 0.0f);
+			Assert::IsTrue(pointRotated == pointRotatedExpectation);
+
+			//45*d
+			rotation = MakeRotationCompound(0.0f, GetPiBy4<float>(), 0.0f);
+			rotationInplace = MakeRotationInplace(0.0f, GetPiBy4<float>(), 0.0f);
+			Assert::IsTrue(rotation == rotationInplace);
+
+			pointRotated = pointY * rotation;
+			pointRotatedExpectation = H::MakePoint<float>(sqr2Over2, 0.0f, sqr2Over2);
+			Assert::IsTrue(pointRotated == pointRotatedExpectation);
+
+			//rotation around the Z axis
+			//90*
+			rotation = MakeRotationCompound(0.0f, 0.0f, GetPiBy2<float>());
+			rotationInplace = MakeRotationInplace(0.0f, 0.0f, GetPiBy2<float>());
+			Assert::IsTrue(rotation == rotationInplace);
+
+			pointRotated = pointZ * rotation;
+			pointRotatedExpectation = H::MakePoint<float>(-1.0f, 0.0f, 0.0f);
+			Assert::IsTrue(pointRotated == pointRotatedExpectation);
+
+			//45*d
+			rotation = MakeRotationCompound(0.0f, 0.0f, GetPiBy4<float>());
+			rotationInplace = MakeRotationInplace(0.0f, 0.0f, GetPiBy4<float>());
+			Assert::IsTrue(rotation == rotationInplace);
+
+			pointRotated = pointZ * rotation;
+			pointRotatedExpectation = H::MakePoint<float>(-sqr2Over2, sqr2Over2, 0.0f);
 			Assert::IsTrue(pointRotated == pointRotatedExpectation);
 		}
 	};
