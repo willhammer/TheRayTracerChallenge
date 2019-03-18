@@ -319,17 +319,27 @@ namespace Math
 			expectation = H::MakePoint<float>(15.0f, 0.0f, 7.0f);
 			auto pointRotatedAndScaledAndTranslated = pointRotatedAndScaled * translation;
 			Assert::IsTrue(pointRotatedAndScaledAndTranslated == expectation);
-			
+		}
 
-			auto transformResult1 = rotation * scaling * translation;
-			auto transformResult2 = translation * scaling * rotation;
+		TEST_METHOD(Transform_DifferentOrderOfChaining)
+		{	
+			auto rotation = Transform<float>::MakeRotationEuler(GetPiBy2<float>(), 0.0f, 0.0f);
+			auto scaling = Transform<float>::MakeScaling(5.0f, 5.0f, 5.0f);
+			auto translation = Transform<float>::MakeTranslation(10.0f, 5.0f, 7.0f);
+
+			auto transformResult1 = rotation * scaling;
+			auto transformResult2 = scaling * rotation;
 			Assert::IsTrue(transformResult1 == transformResult2);
-			
-			auto pointAllTransforms =	point * transformResult1;
-			Assert::IsTrue(pointAllTransforms == expectation);
 
-			pointAllTransforms =		point * transformResult2;
-			Assert::IsTrue(pointAllTransforms == expectation);
+			transformResult1 = translation * scaling;
+			transformResult2 = scaling * translation;
+			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?
+
+			transformResult1 = rotation * translation; 
+			transformResult2 = translation * rotation;
+			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?
+
+			
 		}
 	};
 }
