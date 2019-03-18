@@ -127,8 +127,8 @@ namespace Math
 	auto Transform<T>::MakeRotationEuler(const T radiansX, const T radiansY, const T radiansZ) ->
 		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
 	{		
-		MakeRotationInplace(radiansX, radiansY, radiansZ);
-		return rotation;
+		return MakeRotationCompound(radiansX, radiansY, radiansZ);
+		//return MakeRotationInplace(radiansX, radiansY, radiansZ);
 	}
 
 	template<typename T>
@@ -147,36 +147,8 @@ namespace Math
 
 		shearing.SetOriginalValueAt(2, 0, zOverX);
 		shearing.SetOriginalValueAt(2, 1, zOverY);
-	}
 
-	template<typename T>
-	SquareMatrix<T, 4> Transform<T>::GetTranslation()
-	{
-		SquareMatrix<T, 4> translation = SquareMatrix<T, 4>::Identity();		
-		return translation;
-	}
-
-	template<typename T>
-	SquareMatrix<T, 4> Transform<T>::GetScaling()
-	{
-		SquareMatrix<T, 4> scaling = SquareMatrix<T, 4>::Zero();
-
-		return scaling;
-	}
-
-	template<typename T>
-	SquareMatrix<T, 4> Transform<T>::GetRotation()
-	{
-		SquareMatrix<T, 4> rotation;
-		for (size_t i = 0; i < 3; ++i)
-		{
-			for (size_t j = 0; j < 3; ++j)
-			{
-				rotation.SetOriginalValueAt(i, j, this->GetValueAt(i, j));
-			}
-		}
-
-		return rotation;
+		return shearing;
 	}
 }
 
@@ -287,6 +259,77 @@ namespace Math
 			pointRotated = pointZ * rotation;
 			pointRotatedExpectation = H::MakePoint<float>(-sqr2Over2, sqr2Over2, 0.0f);
 			Assert::IsTrue(pointRotated == pointRotatedExpectation);
+		}
+
+		TEST_METHOD(Transform_Shearing)
+		{
+			auto point = H::MakePoint<float>(2.0f, 3.0f, 4.0f);
+			//x over y
+			auto shearing = Transform<float>::MakeShearing(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			auto skewnPoint = point * shearing;
+			auto expectation = H::MakePoint<float>(5.0f, 3.0f, 4.0f);
+			Assert::IsTrue(skewnPoint == expectation);
+
+			//x over z
+			shearing = Transform<float>::MakeShearing(0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			skewnPoint = point * shearing;
+			expectation = H::MakePoint<float>(6.0f, 3.0f, 4.0f);
+			Assert::IsTrue(skewnPoint == expectation);
+
+			//y over x
+			shearing = Transform<float>::MakeShearing(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+			skewnPoint = point * shearing;
+			expectation = H::MakePoint<float>(2.0f, 5.0f, 4.0f);
+			Assert::IsTrue(skewnPoint == expectation);
+
+			//y over z
+			shearing = Transform<float>::MakeShearing(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+			skewnPoint = point * shearing;
+			expectation = H::MakePoint<float>(2.0f, 7.0f, 4.0f);
+			Assert::IsTrue(skewnPoint == expectation);
+
+			//z over x
+			shearing = Transform<float>::MakeShearing(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+			skewnPoint = point * shearing;
+			expectation = H::MakePoint<float>(2.0f, 3.0f, 6.0f);
+			Assert::IsTrue(skewnPoint == expectation);
+
+			//z over y
+			shearing = Transform<float>::MakeShearing(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+			skewnPoint = point * shearing;
+			expectation = H::MakePoint<float>(2.0f, 3.0f, 7.0f);
+			Assert::IsTrue(skewnPoint == expectation);
+		}
+
+		TEST_METHOD(Transform_ChainingMultipleTransforms)
+		{
+			auto point = H::MakePoint<float>(1.0f, 0.0f, 1.0f);
+			auto rotation = Transform<float>::MakeRotationEuler(GetPiBy2<float>(), 0.0f, 0.0f);
+			auto scaling = Transform<float>::MakeScaling(5.0f, 5.0f, 5.0f);
+			auto translation = Transform<float>::MakeTranslation(10.0f, 5.0f, 7.0f);
+
+			auto expectation = H::MakePoint<float>(1.0f, -1.0f, 0.0f);
+			auto pointRotated = point * rotation;
+			Assert::IsTrue(pointRotated == expectation);
+
+			expectation = H::MakePoint<float>(5.0f, -5.0f, 0.0f);
+			auto pointRotatedAndScaled = pointRotated * scaling;
+			Assert::IsTrue(pointRotatedAndScaled == expectation);
+
+			expectation = H::MakePoint<float>(15.0f, 0.0f, 7.0f);
+			auto pointRotatedAndScaledAndTranslated = pointRotatedAndScaled * translation;
+			Assert::IsTrue(pointRotatedAndScaledAndTranslated == expectation);
+			
+
+			auto transformResult1 = rotation * scaling * translation;
+			auto transformResult2 = translation * scaling * rotation;
+			Assert::IsTrue(transformResult1 == transformResult2);
+			
+			auto pointAllTransforms =	point * transformResult1;
+			Assert::IsTrue(pointAllTransforms == expectation);
+
+			pointAllTransforms =		point * transformResult2;
+			Assert::IsTrue(pointAllTransforms == expectation);
 		}
 	};
 }

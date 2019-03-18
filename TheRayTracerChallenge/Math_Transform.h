@@ -25,10 +25,6 @@ namespace Math
 			const T yOverX, const T yOverZ,
 			const T zOverX, const T zOverY) ->
 			std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>;
-
-		SquareMatrix<T, 4> GetTranslation();
-		SquareMatrix<T, 4> GetScaling();
-		SquareMatrix<T, 4> GetRotation();
 	};
 	
 };
