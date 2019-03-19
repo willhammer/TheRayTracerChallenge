@@ -77,9 +77,14 @@ namespace Math
 
 			return identity;
 		}
-
+		
 		SquareMatrix()
 		{
+			static_assert
+			(
+				(std::is_floating_point_v<T> || std::is_integral_v<T>), 
+				"The instantiation of SquareMatrix is only allowed with floating point or integral types as template parameters."
+			);
 			contents = std::array<std::array<T, Size>, Size>();
 			transposed = false;
 			determinant = T(0);

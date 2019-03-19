@@ -16,8 +16,7 @@ using CI = Math::Helpers::ColorInput;
 namespace
 {
 	template<typename T>
-	auto MakeRotationX(const T radiansX) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> MakeRotationX(const T radiansX)
 	{
 		Math::SquareMatrix<T, 4> rotation = Math::SquareMatrix<T, 4>::Identity();
 		T cosineX = std::cos(radiansX);
@@ -33,8 +32,7 @@ namespace
 	}
 
 	template<typename T>
-	auto MakeRotationY(const T radiansY) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> MakeRotationY(const T radiansY)
 	{
 		Math::SquareMatrix<T, 4> rotation = Math::SquareMatrix<T, 4>::Identity();
 		T cosineY = std::cos(radiansY);
@@ -50,8 +48,7 @@ namespace
 	}
 
 	template<typename T>
-	auto MakeRotationZ(const T radiansZ) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> MakeRotationZ(const T radiansZ)
 	{
 		Math::SquareMatrix<T, 4> rotation = Math::SquareMatrix<T, 4>::Identity();
 		T cosineZ = std::cos(radiansZ);
@@ -67,15 +64,13 @@ namespace
 	}
 
 	template<typename T>
-	auto MakeRotationCompound(const T radiansX, const T radiansY, const T radiansZ) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> MakeRotationCompound(const T radiansX, const T radiansY, const T radiansZ)
 	{
 		return MakeRotationX<T>(radiansX) * MakeRotationY<T>(radiansY) * MakeRotationZ<T>(radiansZ);
 	}
 
 	template<typename T>
-	auto MakeRotationInplace(const T radiansX, const T radiansY, const T radiansZ) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> MakeRotationInplace(const T radiansX, const T radiansY, const T radiansZ)
 	{		
 		T cosineX = std::cos(radiansX);
 		T sineX = std::sin(radiansX);
@@ -101,8 +96,7 @@ namespace Math
 {
 
 	template<typename T>
-	auto Transform<T>::MakeTranslation(const T x, const T y, const T z) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> Transform<T>::MakeTranslation(const T x, const T y, const T z)
 	{
 		SquareMatrix<T, 4> translation = SquareMatrix<T, 4>::Identity();
 		translation.SetOriginalValueAt(0, 3, x);
@@ -113,8 +107,7 @@ namespace Math
 	}
 
 	template<typename T>
-	auto Transform<T>::MakeScaling(const T x, const T y, const T z) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> Transform<T>::MakeScaling(const T x, const T y, const T z)
 	{
 		SquareMatrix<T, 4> scaling = SquareMatrix<T, 4>::Identity();
 		scaling.SetOriginalValueAt(0, 0, x);
@@ -124,19 +117,17 @@ namespace Math
 	}
 
 	template<typename T>
-	auto Transform<T>::MakeRotationEuler(const T radiansX, const T radiansY, const T radiansZ) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+	Math::SquareMatrix<T, 4> Transform<T>::MakeRotationEuler(const T radiansX, const T radiansY, const T radiansZ)
 	{		
 		return MakeRotationCompound(radiansX, radiansY, radiansZ);
 		//return MakeRotationInplace(radiansX, radiansY, radiansZ);
 	}
 
 	template<typename T>
-	auto Transform<T>::MakeShearing(
+	Math::SquareMatrix<T, 4> Transform<T>::MakeShearing(
 		const T xOverY, const T xOverZ,
 		const T yOverX, const T yOverZ,
-		const T zOverX, const T zOverY) ->
-		std::enable_if_t<std::is_floating_point_v<T>, Math::SquareMatrix<T, 4>>
+		const T zOverX, const T zOverY)
 	{
 		SquareMatrix<T, 4> shearing = SquareMatrix<T, 4>::Identity();
 		shearing.SetOriginalValueAt(0, 1, xOverY);
@@ -319,27 +310,6 @@ namespace Math
 			expectation = H::MakePoint<float>(15.0f, 0.0f, 7.0f);
 			auto pointRotatedAndScaledAndTranslated = pointRotatedAndScaled * translation;
 			Assert::IsTrue(pointRotatedAndScaledAndTranslated == expectation);
-		}
-
-		TEST_METHOD(Transform_DifferentOrderOfChaining)
-		{	
-			auto rotation = Transform<float>::MakeRotationEuler(GetPiBy2<float>(), 0.0f, 0.0f);
-			auto scaling = Transform<float>::MakeScaling(5.0f, 5.0f, 5.0f);
-			auto translation = Transform<float>::MakeTranslation(10.0f, 5.0f, 7.0f);
-
-			auto transformResult1 = rotation * scaling;
-			auto transformResult2 = scaling * rotation;
-			Assert::IsTrue(transformResult1 == transformResult2);
-
-			transformResult1 = translation * scaling;
-			transformResult2 = scaling * translation;
-			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?
-
-			transformResult1 = rotation * translation; 
-			transformResult2 = translation * rotation;
-			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?
-
-			
 		}
 	};
 }
