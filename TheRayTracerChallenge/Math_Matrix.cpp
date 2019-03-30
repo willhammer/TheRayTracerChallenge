@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Math_Matrix.h"
+#include <functional>
 
 #ifdef _MSC_VER
 	#include "CppUnitTest.h"
@@ -162,11 +163,48 @@ namespace Math
 
 	}
 
+	template<typename T, typename Functor, size_t Size>
+	SquareMatrixContents<T, Size> GetContentsAfterOperation(
+		const SquareMatrixContents<T, Size>& first,
+		const SquareMatrixContents<T, Size>& second)
+	{
+		SquareMatrixContents<T, Size> retVal;
+		Functor operation;
 
-	template<typename T, size_t Size> 
-	bool operator== (
-		Math::SquareMatrix<T, Size>& matrix1, 
-		Math::SquareMatrix<T, Size>& matrix2)
+		for (size_t lineIndex = 0; lineIndex < Size; ++lineIndex)
+		{
+			for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
+			{
+				retVal[lineIndex][columnIndex] = 0;
+				T valueToSet = 0;
+
+				for (size_t indexMul = 0; indexMul < Size; ++indexMul)
+				{
+					valueToSet += operation(first[lineIndex][indexMul], second[indexMul][columnIndex]);
+				}
+
+				retVal[lineIndex][columnIndex] = valueToSet;
+			}
+		}
+
+		return retVal;
+	}
+
+
+	template<typename T, size_t Size>
+	SquareMatrixContents<T, Size> GetAddedContents(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second)
+	{
+		return GetContentsAfterOperation<T, std::plus<T>, Size>(first, second);
+	}
+	
+	template<typename T, size_t Size>
+	SquareMatrixContents<T, Size> GetMultipliedContents(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second)
+	{
+		return GetContentsAfterOperation<T, std::multiplies<T>, Size>(first, second);
+	}
+
+	template<typename T, size_t Size>
+	bool CheckEquals(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second)
 	{
 		auto epsilon = GetEpsilon<T>();
 
@@ -174,9 +212,8 @@ namespace Math
 		{
 			for (size_t indexColumn = 0; indexColumn < Size; ++indexColumn)
 			{
-
-				auto value1 = matrix1.GetValueAt(indexLine, indexColumn);
-				auto value2 = matrix2.GetValueAt(indexLine, indexColumn);
+				auto value1 = first[indexLine][indexColumn];
+				auto value2 = second[indexLine][indexColumn];
 
 				if (!Equals<T>(value1, value2))
 					return false;
@@ -187,32 +224,48 @@ namespace Math
 	}
 
 	template<typename T, size_t Size>
-	Math::SquareMatrix<T, Size> operator*(
+	SquareMatrixContents<T, Size> GetZero()
+	{
+		SquareMatrixContents<T, Size> zero;
+		for (size_t i = 0; i < Size; ++i)
+			for (size_t j = 0; j < Size; ++j)
+				zero[i][j] = T(0);
+
+		return zero;
+	}
+
+	template<typename T, size_t Size>
+	SquareMatrixContents<T, Size> GetIdentity()
+	{
+		SquareMatrixContents<T, Size> identity = GetZero<T, Size>();
+		for (size_t i = 0; i < Size; ++i)
+		{
+			identity[i][i] = T(1);
+		}
+
+		return identity;
+	}
+
+	template<typename T, size_t Size> 
+	bool operator== (
+		Math::SquareMatrix<T, Size>& matrix1, 
+		Math::SquareMatrix<T, Size>& matrix2)
+	{
+		return CheckEquals<T, Size>(matrix1.GetContents(), matrix2.GetContents());
+	}
+
+	template<typename T, size_t Size>
+	SquareMatrix<T, Size> operator*(SquareMatrix<T, Size>& matrix1, SquareMatrix<T, Size>& matrix2)
+	{
+		return Math::SquareMatrix<T, Size>(GetMultipliedContents(matrix1.GetContents(), matrix2.GetContents()));		
+	}
+
+	template<typename T, size_t Size>
+	Math::SquareMatrix<T, Size>	operator+(
 		Math::SquareMatrix<T, Size>& matrix1,
 		Math::SquareMatrix<T, Size>& matrix2)
 	{
-		Math::SquareMatrix<T, Size> retVal;
-
-		for (size_t lineIndex = 0; lineIndex < Size; ++lineIndex)
-		{
-			for (size_t columnIndex = 0; columnIndex < Size; ++columnIndex)
-			{
-				T valueToSet = retVal.GetValueAt(lineIndex, columnIndex);
-				retVal.SetValueAt(lineIndex, columnIndex, 0);
-				valueToSet = 0;
-
-				for (size_t indexMul = 0; indexMul < Size; ++indexMul)
-				{
-					valueToSet +=
-						matrix1.GetValueAt(lineIndex, indexMul) *
-						matrix2.GetValueAt(indexMul, columnIndex);
-				}
-
-				retVal.SetValueAt(lineIndex, columnIndex, valueToSet);
-			}
-		}
-
-		return retVal;
+		return Math::SquareMatrix<T, Size>(GetAddedContents(matrix1.GetContents(), matrix2.GetContents()));		
 	}
 }
 
@@ -303,6 +356,27 @@ namespace Math
 
 			Assert::IsTrue(matrix1 == matrix2);
 			Assert::IsFalse(matrix1 == matrix3);
+		}
+
+		TEST_METHOD(MatrixAddition)
+		{
+			auto matrix1 = SquareMatrix<float, 3>({
+				1.0f, 2.0f, 3.0f,
+				4.0f, 5.0f, 6.0f,
+				7.0f, 8.0f, 9.0f });
+
+			auto matrix2 = SquareMatrix<float, 3>({
+				1.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 1.0f });
+
+			auto matrixExpectation = SquareMatrix<float, 3>({
+				2.0f, 2.0f, 3.0f,
+				4.0f, 6.0f, 6.0f,
+				7.0f, 8.0f, 10.0f });
+
+			auto matrixResult = matrix1 * matrix2;
+			Assert::IsTrue(matrixResult == matrixExpectation);
 		}
 
 		TEST_METHOD(MatrixMultiplication)

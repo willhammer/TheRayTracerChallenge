@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <array>
 #include <cassert>
+#include <functional>
 
 #define IsA(T, Y) std::is_base_of_v<T, Y>
 #define Equalsf Math::Equals<float>

@@ -4,8 +4,11 @@
 namespace Math
 {
 	template<typename T, size_t Size> class SquareMatrix;
-	template<typename T, size_t Size> using SquareMatrixArray = std::array<std::array<SquareMatrix<T, Size - 1>, Size>, Size>;
+	template<typename T, size_t Size> using SquareMatrixArray = std::array<std::array<SquareMatrix<T, Size - 1>, Size>, Size>;	
+	template<typename T, size_t Size> using SquareMatrixContents = std::array<std::array<T, Size>, Size>;
 
+#pragma region helpers
+	
 	template<typename T, size_t Size>
 	std::array<T, Size> GetColumnFromMatrix(Math::SquareMatrix<T, Size>& matrix, size_t column);
 
@@ -23,26 +26,48 @@ namespace Math
 
 	template<typename T>
 	const T GetDeterminant2(Math::SquareMatrix<T, 2>& matrix);
+		
+	template<typename T, typename Functor, size_t Size>
+	SquareMatrixContents<T, Size> GetContentsAfterOperation(
+		const SquareMatrixContents<T, Size>& first, 
+		const SquareMatrixContents<T, Size>& second);
 
-	template<typename T, size_t Size> 
-	class SquareMatrix;
-	
 	template<typename T, size_t Size>
-	using SquareMatrixArray = std::array<std::array<SquareMatrix<T, Size - 1>, Size>, Size>;
+	SquareMatrixContents<T, Size> GetAddedContents(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second);
 
-	template<typename T, size_t Size> 
-	Math::SquareMatrix<T, Size>	operator*(Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2);
+	template<typename T, size_t Size>
+	SquareMatrixContents<T, Size> GetMultipliedContents(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second);
+
+	template<typename T, size_t Size>
+	bool CheckEquals(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second);
+
+	template<typename T, size_t Size>
+	SquareMatrixContents<T, Size> GetZero();
+
+	template<typename T, size_t Size>
+	SquareMatrixContents<T, Size> GetIdentity();
+
+#pragma endregion
+	
+	
+#pragma region operators
+	template<typename T, size_t Size>
+	SquareMatrix<T, Size> operator*(SquareMatrix<T, Size>& matrix1, SquareMatrix<T, Size>& matrix2);
+
+	template<typename T, size_t Size>
+	Math::SquareMatrix<T, Size>	operator+(Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2);
 
 	template<typename T, size_t Size> 
 	bool operator== (Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2);
+#pragma endregion
 
 	template<typename T, size_t Size>
 	class SquareMatrix
 	{
-	private:
-		friend class Helpers;
+	protected:
+		friend class Helpers;		
 
-		std::array<std::array<T, Size>, Size> contents;
+		SquareMatrixContents<T, Size> contents;
 		bool transposed;
 		T determinant;
 		std::array<std::array<T, Size>, Size> contentsInverse;
@@ -56,25 +81,27 @@ namespace Math
 
 	public:
 
+		const SquareMatrixContents<T, Size>& GetContents()
+		{
+			return contents;
+		}
+
+		const void SetContents(SquareMatrixContents<T, Size>&& inputContents)
+		{
+			contents = inputContents;
+		}
+
 		static SquareMatrix Zero()
 		{
 			SquareMatrix<T, Size> zero;
-			for (size_t i = 0; i < Size; ++i)
-			{
-				zero.SetOriginalValueAt(i, i, T(0));
-			}
-
+			zero.SetContents(GetZero<T, Size>());
 			return zero;
 		}
 
 		static SquareMatrix Identity()
 		{
 			SquareMatrix<T, Size> identity;
-			for (size_t i = 0; i < Size; ++i)
-			{
-				identity.SetOriginalValueAt(i, i, T(1));
-			}
-
+			identity.SetContents(GetIdentity<T, Size>());
 			return identity;
 		}
 		

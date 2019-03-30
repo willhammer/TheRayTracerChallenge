@@ -16,9 +16,9 @@ using CI = Math::Helpers::ColorInput;
 namespace
 {
 	template<typename T>
-	Math::SquareMatrix<T, 4> MakeRotationX(const T radiansX)
+	Math::Transform<T> MakeRotationX(const T radiansX)
 	{
-		Math::SquareMatrix<T, 4> rotation = Math::SquareMatrix<T, 4>::Identity();
+		Math::Transform<T> rotation = Math::Transform<T>::Identity();
 		T cosineX = std::cos(radiansX);
 		T sineX = std::sin(radiansX);
 
@@ -32,9 +32,9 @@ namespace
 	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> MakeRotationY(const T radiansY)
+	Math::Transform<T> MakeRotationY(const T radiansY)
 	{
-		Math::SquareMatrix<T, 4> rotation = Math::SquareMatrix<T, 4>::Identity();
+		Math::Transform<T> rotation = Math::Transform<T>::Identity();
 		T cosineY = std::cos(radiansY);
 		T sineY = std::sin(radiansY);
 
@@ -48,9 +48,9 @@ namespace
 	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> MakeRotationZ(const T radiansZ)
+	Math::Transform<T> MakeRotationZ(const T radiansZ)
 	{
-		Math::SquareMatrix<T, 4> rotation = Math::SquareMatrix<T, 4>::Identity();
+		Math::Transform<T> rotation = Math::Transform<T>::Identity();
 		T cosineZ = std::cos(radiansZ);
 		T sineZ = std::sin(radiansZ);
 
@@ -64,13 +64,13 @@ namespace
 	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> MakeRotationCompound(const T radiansX, const T radiansY, const T radiansZ)
+	Math::Transform<T> MakeRotationCompound(const T radiansX, const T radiansY, const T radiansZ)
 	{
 		return MakeRotationX<T>(radiansX) * MakeRotationY<T>(radiansY) * MakeRotationZ<T>(radiansZ);
 	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> MakeRotationInplace(const T radiansX, const T radiansY, const T radiansZ)
+	Math::Transform<T> MakeRotationInplace(const T radiansX, const T radiansY, const T radiansZ)
 	{		
 		T cosineX = std::cos(radiansX);
 		T sineX = std::sin(radiansX);
@@ -81,7 +81,7 @@ namespace
 		T cosineZ = std::cos(radiansZ);
 		T sineZ = std::sin(radiansZ);
 
-		Math::SquareMatrix<T, 4> rotation({
+		Math::Transform<T> rotation({
 			(cosineY * cosineZ),							(-cosineY * sineZ ),							(sineY),			0.0f,
 			(sineX * sineY * cosineZ + cosineX * sineZ),	(-sineX * sineY * sineZ + cosineX * cosineZ),	(-sineX * cosineY),	0.0f,
 			(-cosineX * sineY * cosineZ + sineX * sineZ),	(cosineX * sineY * sineZ + sineX * cosineZ), 	(cosineX * cosineY),0.0f,
@@ -91,14 +91,30 @@ namespace
 	}
 }
 
-
 namespace Math
 {
+	template<typename T>
+	Transform<T> operator*(Transform<T>& transform1, Transform<T>& transform2)
+	{
+		return Transform<T>(GetMultipliedContents(transform1.GetContents(), transform2.GetContents()));
+	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> Transform<T>::MakeTranslation(const T x, const T y, const T z)
+	Transform<T> operator+(Transform<T>& transform1, Transform<T>& transform2)
 	{
-		SquareMatrix<T, 4> translation = SquareMatrix<T, 4>::Identity();
+		return Transform<T>(GetAddedContents(transform1.GetContents(), transform2.GetContents()));
+	}
+
+	template<typename T, size_t Size>
+	bool operator== (Math::Transform<T>& transform1, Math::Transform<T>& transform2)
+	{
+		return CheckEquals(transform1.GetContents(), transform2.GetContents());
+	}
+
+	template<typename T>
+	Transform<T> Transform<T>::MakeTranslation(const T x, const T y, const T z)
+	{
+		Transform<T> translation = Transform<T>::Identity();
 		translation.SetOriginalValueAt(0, 3, x);
 		translation.SetOriginalValueAt(1, 3, y);
 		translation.SetOriginalValueAt(2, 3, z);
@@ -107,9 +123,9 @@ namespace Math
 	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> Transform<T>::MakeScaling(const T x, const T y, const T z)
+	Transform<T> Transform<T>::MakeScaling(const T x, const T y, const T z)
 	{
-		SquareMatrix<T, 4> scaling = SquareMatrix<T, 4>::Identity();
+		Transform<T> scaling = Transform<T>::Identity();
 		scaling.SetOriginalValueAt(0, 0, x);
 		scaling.SetOriginalValueAt(1, 1, y);
 		scaling.SetOriginalValueAt(2, 2, z);
@@ -117,19 +133,19 @@ namespace Math
 	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> Transform<T>::MakeRotationEuler(const T radiansX, const T radiansY, const T radiansZ)
+	Transform<T> Transform<T>::MakeRotation(const T radiansX, const T radiansY, const T radiansZ)
 	{		
 		return MakeRotationCompound(radiansX, radiansY, radiansZ);
 		//return MakeRotationInplace(radiansX, radiansY, radiansZ);
 	}
 
 	template<typename T>
-	Math::SquareMatrix<T, 4> Transform<T>::MakeShearing(
+	Transform<T> Transform<T>::MakeShearing(
 		const T xOverY, const T xOverZ,
 		const T yOverX, const T yOverZ,
 		const T zOverX, const T zOverY)
 	{
-		SquareMatrix<T, 4> shearing = SquareMatrix<T, 4>::Identity();
+		Transform<T> shearing = Transform<T>::Identity();
 		shearing.SetOriginalValueAt(0, 1, xOverY);
 		shearing.SetOriginalValueAt(0, 2, xOverZ);
 
@@ -141,6 +157,31 @@ namespace Math
 
 		return shearing;
 	}
+
+	template<typename T>
+	void Transform<T>::SetTranslation(const T x, const T y, const T z)
+	{
+
+	}
+
+	template<typename T>
+	void Transform<T>::SetRotation(const T angleX, const T angleY, const T angleZ)
+	{
+
+	}
+
+	template<typename T>
+	Transform<T> GetTranslation()
+	{
+
+	}
+
+	template<typename T>
+	Transform<T> GetRotation()
+	{
+
+	}
+
 }
 
 #pragma region Math Tests
@@ -295,7 +336,7 @@ namespace Math
 		TEST_METHOD(Transform_ChainingMultipleTransforms)
 		{
 			auto point = H::MakePoint<float>(1.0f, 0.0f, 1.0f);
-			auto rotation = Transform<float>::MakeRotationEuler(GetPiBy2<float>(), 0.0f, 0.0f);
+			auto rotation = Transform<float>::MakeRotation(GetPiBy2<float>(), 0.0f, 0.0f);
 			auto scaling = Transform<float>::MakeScaling(5.0f, 5.0f, 5.0f);
 			auto translation = Transform<float>::MakeTranslation(10.0f, 5.0f, 7.0f);
 
@@ -310,6 +351,25 @@ namespace Math
 			expectation = H::MakePoint<float>(15.0f, 0.0f, 7.0f);
 			auto pointRotatedAndScaledAndTranslated = pointRotatedAndScaled * translation;
 			Assert::IsTrue(pointRotatedAndScaledAndTranslated == expectation);
+		}
+
+		TEST_METHOD(Transform_ChainingMultipleTransforms_Reverse)
+		{	
+			auto rotation = Transform<float>::MakeRotation(GetPiBy2<float>(), 0.0f, 0.0f);
+			auto scaling = Transform<float>::MakeScaling(5.0f, 5.0f, 5.0f);
+			auto translation = Transform<float>::MakeTranslation(10.0f, 5.0f, 7.0f);
+
+			auto transformResult1 = rotation * scaling;
+			auto transformResult2 = scaling * rotation;
+			Assert::IsTrue(transformResult1 == transformResult2);
+
+			transformResult1 = translation * scaling;
+			transformResult2 = scaling * translation;
+			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?
+
+			transformResult1 = rotation * translation; 
+			transformResult2 = translation * rotation;
+			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?			
 		}
 	};
 }
