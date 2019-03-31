@@ -1,7 +1,8 @@
 #include "stdafx.h"
-
-#include "Math_Tuple.h"
 #include "Math_Transform.h"
+#include "Math_Tuple.h"
+#include "Math_Matrix.h"
+
 #include <cmath>
 
 #ifdef _MSC_VER
@@ -96,13 +97,15 @@ namespace Math
 	template<typename T>
 	Transform<T> operator*(Transform<T>& transform1, Transform<T>& transform2)
 	{
-		return Transform<T>(GetMultipliedContents(transform1.GetContents(), transform2.GetContents()));
+		return GetAddedContents(transform1, transform2);
+
+		//return GetMultipliedContents(transform1, transform2);
 	}
 
 	template<typename T>
 	Transform<T> operator+(Transform<T>& transform1, Transform<T>& transform2)
 	{
-		return Transform<T>(GetAddedContents(transform1.GetContents(), transform2.GetContents()));
+		return GetAddedContents(transform1.GetContents(), transform2.GetContents());
 	}
 
 	template<typename T, size_t Size>

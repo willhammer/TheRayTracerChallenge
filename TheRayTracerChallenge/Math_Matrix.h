@@ -26,20 +26,15 @@ namespace Math
 
 	template<typename T>
 	const T GetDeterminant2(Math::SquareMatrix<T, 2>& matrix);
-		
-	template<typename T, typename Functor, size_t Size>
-	SquareMatrixContents<T, Size> GetContentsAfterOperation(
-		const SquareMatrixContents<T, Size>& first, 
-		const SquareMatrixContents<T, Size>& second);
+	
+	template<typename T>
+	T GetAddedContents(T& first, T& second);
 
-	template<typename T, size_t Size>
-	SquareMatrixContents<T, Size> GetAddedContents(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second);
-
-	template<typename T, size_t Size>
-	SquareMatrixContents<T, Size> GetMultipliedContents(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second);
-
-	template<typename T, size_t Size>
-	bool CheckEquals(const SquareMatrixContents<T, Size>& first, const SquareMatrixContents<T, Size>& second);
+	template<typename T>
+	T GetMultipliedContents(T& first, T& second);
+	
+	template<typename T>
+	bool CheckEquals(T& first, T& second);
 
 	template<typename T, size_t Size>
 	SquareMatrixContents<T, Size> GetZero();
@@ -48,7 +43,6 @@ namespace Math
 	SquareMatrixContents<T, Size> GetIdentity();
 
 #pragma endregion
-	
 	
 #pragma region operators
 	template<typename T, size_t Size>
@@ -80,6 +74,8 @@ namespace Math
 		}
 
 	public:
+		T GetZeroAsT() { return T(0); }
+		size_t GetSize() { return size_t(Size); }
 
 		const SquareMatrixContents<T, Size>& GetContents()
 		{
