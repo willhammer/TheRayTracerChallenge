@@ -93,27 +93,25 @@ namespace
 }
 
 namespace Math
-{
+{	
 	template<typename T>
 	Transform<T> operator*(Transform<T>& transform1, Transform<T>& transform2)
 	{
-		return GetAddedContents(transform1, transform2);
-
-		//return GetMultipliedContents(transform1, transform2);
+		return GetMultipliedContents(transform1, transform2);
 	}
 
 	template<typename T>
 	Transform<T> operator+(Transform<T>& transform1, Transform<T>& transform2)
 	{
-		return GetAddedContents(transform1.GetContents(), transform2.GetContents());
+		return GetAddedContents(transform1, transform2);
 	}
 
-	template<typename T, size_t Size>
+	template<typename T>
 	bool operator== (Math::Transform<T>& transform1, Math::Transform<T>& transform2)
 	{
-		return CheckEquals(transform1.GetContents(), transform2.GetContents());
+		return CheckEquals(transform1, transform2);
 	}
-
+	
 	template<typename T>
 	Transform<T> Transform<T>::MakeTranslation(const T x, const T y, const T z)
 	{

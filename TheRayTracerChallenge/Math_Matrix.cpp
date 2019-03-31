@@ -163,67 +163,6 @@ namespace Math
 
 	}
 
-	template<typename T>
-	T GetAddedContents(T& first, T& second)
-	{
-		T retVal;
-		auto size = first.GetSize();
-		for (size_t lineIndex = 0; lineIndex < size; ++lineIndex)
-		{
-			for (size_t columnIndex = 0; columnIndex < size; ++columnIndex)
-			{
-				retVal.SetOriginalValueAt(lineIndex, columnIndex,
-					first.GetValueAt(lineIndex, columnIndex) * second.GetValueAt(lineIndex, columnIndex));
-			}
-		}
-
-		return retVal;
-	}
-	
-	template<typename T>	
-	T GetMultipliedContents(T& first, T& second)
-	{
-		T retVal;
-		auto size = first.GetSize();
-		for (size_t lineIndex = 0; lineIndex < size; ++lineIndex)
-		{
-			for (size_t columnIndex = 0; columnIndex < size; ++columnIndex)
-			{
-				auto valueToSet = first.GetZeroAsT();
-
-				for (size_t indexMul = 0; indexMul < size; ++indexMul)
-				{
-					valueToSet += first.GetValueAt(lineIndex, indexMul) * second.GetValueAt(indexMul, columnIndex);
-				}
-
-				retVal.SetOriginalValueAt(lineIndex, columnIndex, valueToSet);				
-			}
-		}
-
-		return retVal;
-	}
-
-	template<typename T>
-	bool CheckEquals(T& first, T& second)
-	{
-		auto epsilon = GetEpsilon<decltype(first.GetZeroAsT())>();
-		auto size = first.GetSize();
-
-		for (size_t indexLine = 0; indexLine < size; ++indexLine)
-		{
-			for (size_t indexColumn = 0; indexColumn < size; ++indexColumn)
-			{
-				const auto& value1 = first.GetValueAt(indexLine, indexColumn);
-				const auto& value2 = second.GetValueAt(indexLine, indexColumn);
-
-				if (!Equals<decltype(epsilon)>(value1, value2))
-					return false;
-			}
-		}
-
-		return true;
-	}
-
 	template<typename T, size_t Size>
 	SquareMatrixContents<T, Size> GetZero()
 	{
@@ -248,25 +187,21 @@ namespace Math
 	}
 
 	template<typename T, size_t Size> 
-	bool operator== (
-		Math::SquareMatrix<T, Size>& matrix1, 
-		Math::SquareMatrix<T, Size>& matrix2)
+	bool operator== (Math::SquareMatrix<T, Size>& first, Math::SquareMatrix<T, Size>& second)
 	{
-		return CheckEquals(matrix1, matrix2);
+		return CheckEquals(first, second);
 	}
 
 	template<typename T, size_t Size>
-	SquareMatrix<T, Size> operator*(SquareMatrix<T, Size>& matrix1, SquareMatrix<T, Size>& matrix2)
+	SquareMatrix<T, Size> operator*(SquareMatrix<T, Size>& first, SquareMatrix<T, Size>& second)
 	{
-		return GetMultipliedContents(matrix1, matrix2);
+		return GetMultipliedContents(first, second);
 	}
 
 	template<typename T, size_t Size>
-	Math::SquareMatrix<T, Size>	operator+(
-		Math::SquareMatrix<T, Size>& matrix1,
-		Math::SquareMatrix<T, Size>& matrix2)
+	Math::SquareMatrix<T, Size>	operator+(Math::SquareMatrix<T, Size>& first, Math::SquareMatrix<T, Size>& second)
 	{
-		return Math::SquareMatrix<T, Size>(GetAddedContents(matrix1, matrix2));
+		return GetAddedContents(first, second);
 	}
 }
 

@@ -26,15 +26,6 @@ namespace Math
 
 	template<typename T>
 	const T GetDeterminant2(Math::SquareMatrix<T, 2>& matrix);
-	
-	template<typename T>
-	T GetAddedContents(T& first, T& second);
-
-	template<typename T>
-	T GetMultipliedContents(T& first, T& second);
-	
-	template<typename T>
-	bool CheckEquals(T& first, T& second);
 
 	template<typename T, size_t Size>
 	SquareMatrixContents<T, Size> GetZero();
@@ -46,13 +37,13 @@ namespace Math
 	
 #pragma region operators
 	template<typename T, size_t Size>
-	SquareMatrix<T, Size> operator*(SquareMatrix<T, Size>& matrix1, SquareMatrix<T, Size>& matrix2);
+	bool operator== (Math::SquareMatrix<T, Size>& first, Math::SquareMatrix<T, Size>& second);
 
 	template<typename T, size_t Size>
-	Math::SquareMatrix<T, Size>	operator+(Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2);
+	SquareMatrix<T, Size> operator*(SquareMatrix<T, Size>& first, SquareMatrix<T, Size>& second);
 
-	template<typename T, size_t Size> 
-	bool operator== (Math::SquareMatrix<T, Size>& matrix1, Math::SquareMatrix<T, Size>& matrix2);
+	template<typename T, size_t Size>
+	Math::SquareMatrix<T, Size>	operator+(Math::SquareMatrix<T, Size>& first, Math::SquareMatrix<T, Size>& second);
 #pragma endregion
 
 	template<typename T, size_t Size>
@@ -76,7 +67,7 @@ namespace Math
 	public:
 		T GetZeroAsT() { return T(0); }
 		size_t GetSize() { return size_t(Size); }
-
+		
 		const SquareMatrixContents<T, Size>& GetContents()
 		{
 			return contents;
@@ -245,6 +236,68 @@ namespace Math
 			return !Equals<T>(det, T(0));
 		}
 	};
+
+	template<typename T>
+	T GetAddedContents(T& first, T& second)
+	{
+		T retVal;
+		auto size = first.GetSize();
+		for (size_t lineIndex = 0; lineIndex < size; ++lineIndex)
+		{
+			for (size_t columnIndex = 0; columnIndex < size; ++columnIndex)
+			{
+				retVal.SetOriginalValueAt(lineIndex, columnIndex,
+					first.GetValueAt(lineIndex, columnIndex) + second.GetValueAt(lineIndex, columnIndex));
+			}
+		}
+
+		return retVal;
+	}
+
+	template<typename T>
+	T GetMultipliedContents(T& first, T& second)
+	{
+		T retVal;
+		auto size = first.GetSize();
+		for (size_t lineIndex = 0; lineIndex < size; ++lineIndex)
+		{
+			for (size_t columnIndex = 0; columnIndex < size; ++columnIndex)
+			{
+				auto valueToSet = first.GetZeroAsT();
+
+				for (size_t indexMul = 0; indexMul < size; ++indexMul)
+				{
+					valueToSet += first.GetValueAt(lineIndex, indexMul) * second.GetValueAt(indexMul, columnIndex);
+				}
+
+				retVal.SetOriginalValueAt(lineIndex, columnIndex, valueToSet);
+			}
+		}
+
+		return retVal;
+	}
+
+	template<typename T>
+	bool CheckEquals(T& first, T& second)
+	{
+		auto epsilon = GetEpsilon<decltype(first.GetZeroAsT())>();
+		auto size = first.GetSize();
+
+		for (size_t indexLine = 0; indexLine < size; ++indexLine)
+		{
+			for (size_t indexColumn = 0; indexColumn < size; ++indexColumn)
+			{
+				const auto& value1 = first.GetValueAt(indexLine, indexColumn);
+				const auto& value2 = second.GetValueAt(indexLine, indexColumn);
+
+				if (!Equals<decltype(epsilon)>(value1, value2))
+					return false;
+			}
+		}
+
+		return true;
+	}
+
 }
 
 using Matrix4f = Math::SquareMatrix<float, 4>;

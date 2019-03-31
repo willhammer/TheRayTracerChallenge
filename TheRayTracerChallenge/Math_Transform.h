@@ -61,15 +61,17 @@ namespace Math
 		}
 	};
 
+	
 #pragma region operators
 	template<typename T, size_t Size>
-	Transform<T> operator*(Transform<T>& transform1, Transform<T>& transform2);
+	Transform<T> operator*(Transform<T>& first, Transform<T>& second);
 
 	template<typename T, size_t Size>
-	Math::Transform<T>	operator+(Math::Transform<T>& transform1, Math::Transform<T>& transform2);
+	Math::Transform<T>	operator+(Math::Transform<T>& first, Math::Transform<T>& second);
 
 	template<typename T, size_t Size>
-	bool operator== (Math::Transform<T>& transform1, Math::Transform<T>& transform2);
+	bool operator== (Math::Transform<T>& first, Math::Transform<T>& second);
 #pragma endregion
+
 };
 
