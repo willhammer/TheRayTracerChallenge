@@ -93,7 +93,7 @@ namespace
 }
 
 namespace Math
-{	
+{
 	template<typename T>
 	Transform<T> operator*(Transform<T>& transform1, Transform<T>& transform2)
 	{
@@ -111,7 +111,56 @@ namespace Math
 	{
 		return CheckEquals(transform1, transform2);
 	}
-	
+
+	template<typename T>
+	Transform<T> Transform<T>::GetTranslation()
+	{
+		Transform<T> translation = Transform<T>::Identity();
+		translation.SetOriginalValueAt(3, 0, GetValueAt(3, 0));
+		translation.SetOriginalValueAt(3, 1, GetValueAt(3, 1));
+		translation.SetOriginalValueAt(3, 2, GetValueAt(3, 2));
+		translation.SetOriginalValueAt(3, 3, GetValueAt(3, 3));
+
+		return translation;
+	}
+
+	template<typename T>
+	Transform<T> Transform<T>::GetRotation()
+	{
+		Transform<T> rotation = *this;
+		for (size_t i = 0; i < 3; ++i)
+		{
+			for (size_t j = 0; j < 3; ++j)
+			{
+				rotation.SetOriginalValueAt(i, j, this->GetValueAt(i, j));
+			}
+		}
+
+		return rotation;
+	}
+
+	template<typename T>
+	void Transform<T>::SetTranslation(const Transform<T>& transformOther)
+	{
+		this->SetOriginalValueAt(3, 0, transformOther.GetValueAt(3, 0));
+		this->SetOriginalValueAt(3, 1, transformOther.GetValueAt(3, 1));
+		this->SetOriginalValueAt(3, 2, transformOther.GetValueAt(3, 2));
+		this->SetOriginalValueAt(3, 3, transformOther.GetValueAt(3, 3));
+	}
+
+	template<typename T>
+	void Transform<T>::SetRotation(const Transform<T>& transformOther)
+	{
+		for (size_t i = 0; i < 3; ++i)
+		{
+			for (size_t j = 0; j < 3; ++j)
+			{
+				this->SetOriginalValueAt(i, j, t transformOther.GetValueAt(i, j));
+			}
+		}
+	}
+
+
 	template<typename T>
 	Transform<T> Transform<T>::MakeTranslation(const T x, const T y, const T z)
 	{
@@ -135,7 +184,7 @@ namespace Math
 
 	template<typename T>
 	Transform<T> Transform<T>::MakeRotation(const T radiansX, const T radiansY, const T radiansZ)
-	{		
+	{
 		return MakeRotationCompound(radiansX, radiansY, radiansZ);
 		//return MakeRotationInplace(radiansX, radiansY, radiansZ);
 	}
@@ -158,31 +207,6 @@ namespace Math
 
 		return shearing;
 	}
-
-	template<typename T>
-	void Transform<T>::SetTranslation(const T x, const T y, const T z)
-	{
-
-	}
-
-	template<typename T>
-	void Transform<T>::SetRotation(const T angleX, const T angleY, const T angleZ)
-	{
-
-	}
-
-	template<typename T>
-	Transform<T> GetTranslation()
-	{
-
-	}
-
-	template<typename T>
-	Transform<T> GetRotation()
-	{
-
-	}
-
 }
 
 #pragma region Math Tests
@@ -334,7 +358,7 @@ namespace Math
 			Assert::IsTrue(skewnPoint == expectation);
 		}
 
-		TEST_METHOD(Transform_ChainingMultipleTransforms)
+		TEST_METHOD(Transform_ChainingMultipleTransforms_TransformationsOneByOne)
 		{
 			auto point = H::MakePoint<float>(1.0f, 0.0f, 1.0f);
 			auto rotation = Transform<float>::MakeRotation(GetPiBy2<float>(), 0.0f, 0.0f);
@@ -354,24 +378,19 @@ namespace Math
 			Assert::IsTrue(pointRotatedAndScaledAndTranslated == expectation);
 		}
 
-		TEST_METHOD(Transform_ChainingMultipleTransforms_Reverse)
-		{	
+		TEST_METHOD(Transform_ChainingMultipleTransforms_TransformationsAllInOne)
+		{
+			auto point = H::MakePoint<float>(1.0f, 0.0f, 1.0f);
 			auto rotation = Transform<float>::MakeRotation(GetPiBy2<float>(), 0.0f, 0.0f);
 			auto scaling = Transform<float>::MakeScaling(5.0f, 5.0f, 5.0f);
 			auto translation = Transform<float>::MakeTranslation(10.0f, 5.0f, 7.0f);
 
-			auto transformResult1 = rotation * scaling;
-			auto transformResult2 = scaling * rotation;
-			Assert::IsTrue(transformResult1 == transformResult2);
+			auto expectation = H::MakePoint<float>(15.0f, 0.0f, 7.0f);
 
-			transformResult1 = translation * scaling;
-			transformResult2 = scaling * translation;
-			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?
-
-			transformResult1 = rotation * translation; 
-			transformResult2 = translation * rotation;
-			Assert::IsTrue(transformResult1 == transformResult2); // is translation the culprit?			
-		}
+			auto allTransformations = translation * scaling * rotation;
+			auto pointRotatedAndScaledAndTranslated = point * allTransformations;
+			Assert::IsTrue(pointRotatedAndScaledAndTranslated == expectation);
+		}		
 	};
 }
 #endif

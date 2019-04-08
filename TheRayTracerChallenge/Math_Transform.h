@@ -25,13 +25,12 @@ namespace Math
 			identity.SetContents(GetIdentity<T, 4>());
 			return identity;
 		}
-
-
-		void SetTranslation(const T x, const T y, const T z);
-		void SetRotation(const T angleX, const T angleY, const T angleZ);
 		
 		Transform<T> GetTranslation();
 		Transform<T> GetRotation();
+
+		void SetTranslation(const Transform<T>& transformOther);
+		void SetRotation(const Transform<T>& transformOther);
 
 		static Transform<T> MakeTranslation(const T x, const T y, const T z);
 		static Transform<T> MakeScaling(const T x, const T y, const T z);
