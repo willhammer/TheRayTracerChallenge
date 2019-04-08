@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Math_Matrix.h"
+#include "Graphics.h"
 #include <functional>
 
 #ifdef _MSC_VER

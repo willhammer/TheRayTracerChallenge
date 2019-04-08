@@ -2,6 +2,7 @@
 #include "Math_Transform.h"
 #include "Math_Tuple.h"
 #include "Math_Matrix.h"
+#include "Graphics.h"
 
 #include <cmath>
 
@@ -390,7 +391,44 @@ namespace Math
 			auto allTransformations = translation * scaling * rotation;
 			auto pointRotatedAndScaledAndTranslated = point * allTransformations;
 			Assert::IsTrue(pointRotatedAndScaledAndTranslated == expectation);
-		}		
+		}
+
+		TEST_METHOD(Transform_PlotClockHourPositions)
+		{
+			Color4f clockMarkerColor = H::MakeColor(1.0f, 0.0f, 0.0f, 0.5f);
+			Vector4f setVelocity = H::MakeVector(10.0f, 15.0f, 0.0f);
+
+			const size_t numClockPositions = 12;
+			std::vector<Point4f> clockPositions;
+			clockPositions.reserve(numClockPositions);			
+			const float clockStepRotation = Get2Pi<float>() / float(numClockPositions);
+
+			auto initialPoint = H::MakePoint<float>(0.0f, 50.0f, 0.0f);
+			for (size_t i = 0; i < numClockPositions; ++i)
+			{
+				auto rotationMatrix = Transform<float>::MakeRotation(0.0f, 0.0f, clockStepRotation * i);
+				auto rotatedPoint = initialPoint * rotationMatrix;
+				clockPositions.push_back(rotatedPoint);
+			}
+
+			float width = 16 * 20;
+			float height = 9 * 20;
+
+			auto translation = Transform<float>::MakeTranslation(100.0f, 100.0f, 0.0f);
+			
+			Graphics::Canvas canvas((size_t)width, (size_t)height);
+			for (const Point4f& position : clockPositions)
+			{
+				auto positionRotated = position * translation;
+				auto posX = H::Get(positionRotated, C::X);
+				auto posY = H::Get(positionRotated, C::Y);
+
+				canvas.SetAt((size_t)posY, (size_t)posX, clockMarkerColor);
+			}
+
+			canvas.SetFilename("clockplot.ppm");
+			canvas.WritePPMFile();
+		}
 	};
 }
 #endif
