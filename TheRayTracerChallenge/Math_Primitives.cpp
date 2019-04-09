@@ -33,12 +33,19 @@ namespace Math
 		{
 			Object obj;
 			Assert::IsTrue(obj.GetObjectId() == 1);
+			Assert::IsTrue(Object::GetNumObjects() == 1);
 
 			Object obj1;
 			Assert::IsTrue(obj1.GetObjectId() == 2);
+			Assert::IsTrue(Object::GetNumObjects() == 2);
+			
+			{
+				Sphere<float> obj2;
+				Assert::IsTrue(obj2.GetObjectId() == 3);
+				Assert::IsTrue(Object::GetNumObjects() == 3);
+			}
 
-			Sphere<float> obj2;
-			Assert::IsTrue(obj2.GetObjectId() == 3);
+			Assert::IsTrue(Object::GetNumObjects() == 2);			
 		}
 	};
 
