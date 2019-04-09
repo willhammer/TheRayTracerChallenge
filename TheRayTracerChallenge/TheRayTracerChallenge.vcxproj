@@ -152,6 +152,8 @@
     <ClInclude Include="Math.h" />
     <ClInclude Include="Math_Common.h" />
     <ClInclude Include="Math_Matrix.h" />
+    <ClInclude Include="Math_Primitives.h" />
+    <ClInclude Include="Math_Ray.h" />
     <ClInclude Include="Math_Transform.h" />
     <ClInclude Include="Math_Tuple.h" />
     <ClInclude Include="stdafx.h" />
@@ -162,6 +164,8 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Math_Matrix.cpp" />
+    <ClCompile Include="Math_Primitives.cpp" />
+    <ClCompile Include="Math_Ray.cpp" />
     <ClCompile Include="Math_Transform.cpp" />
     <ClCompile Include="Math_Tuple.cpp" />
     <ClCompile Include="stdafx.cpp">
