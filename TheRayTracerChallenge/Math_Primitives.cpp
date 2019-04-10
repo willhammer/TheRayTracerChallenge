@@ -48,8 +48,7 @@ namespace Math
 			Assert::IsTrue(Object::GetNumObjects() == 2);			
 		}
 	};
-
-
+    
 	TEST_CLASS(TestMathPrimitives_Sphere)
 	{
 	public:
