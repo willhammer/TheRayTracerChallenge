@@ -19,7 +19,8 @@ using CI = Math::Helpers::ColorInput;
 
 namespace Math
 {
-	
+    size_t Object::objectIdCounter = 0;
+    std::unordered_map<size_t, Object*> Object::objectMap = std::unordered_map<size_t, Object*>();
 }
 
 #pragma region tests here
@@ -54,7 +55,13 @@ namespace Math
 	public:
 		TEST_METHOD(Sphere_Creation)
 		{
+            Sphere<float> sphere;
+            Assert::IsTrue(sphere.GetRadius() == 0.0f);
+            Assert::IsTrue(sphere.GetPosition() == H::MakePoint(0.0f, 0.0f, 0.0f));
 
+            Sphere<float> sphere2(15.0f, H::MakePoint(2.0f, 3.0f, 4.0f));
+            Assert::IsTrue(sphere2.GetRadius() == 15.0f);
+            Assert::IsTrue(sphere2.GetPosition() == H::MakePoint(2.0f, 3.0f, 4.0f));
 		}
 
 	};

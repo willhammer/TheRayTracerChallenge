@@ -39,28 +39,21 @@ namespace Math
 
 	};
 	
-	size_t Object::objectIdCounter = 0;
-	std::unordered_map<size_t, Object*> Object::objectMap = std::unordered_map<size_t, Object*>();
-
 	template<typename T>
 	class Sphere : public Object
 	{
 	private:
 		T radius;
-		Vector4<T> position;
+		Point4<T> position;
 
 	public:
+		Sphere() : radius{0}, position{H::MakePoint(T(0), T(0), T(0))}{	}
+		Sphere(T setRadius, Point4<T> setPosition) : radius{setRadius}, position{setPosition}{ }
 
-		Sphere() : radius{0}, position{H::MakeVector(T(0), T(0), T(0))}
-		{
+        T GetRadius() { return radius; }
+        Point4<T> GetPosition() { return position; }
 
-		}
-
-		Sphere(T setRadius, Vector4<T> setPosition) :
-			radius{setRadius},
-			position{setPosition}
-		{
-			
-		}
+        void SetRadius(const T setRadius) { radius = setRadius; }
+        void SetPosition(const Point4<T>& setPosition) { position = setPosition; }
 	};
 }
