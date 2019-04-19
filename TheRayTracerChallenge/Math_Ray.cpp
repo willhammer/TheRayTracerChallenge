@@ -75,9 +75,7 @@ namespace
         float a = dir.GetMagnitudeSquared();
         float b = 2 * dir.Dot(centerToRayOrigin);
         float c = centerToRayOrigin.GetMagnitudeSquared() - radiusSquared;
-        if (c > 0)
-            return intersectionPoints;
-
+        
         solutions = SolveQuadratic(a, b, c);
         if (solutions.empty())
             return intersectionPoints;
@@ -100,7 +98,7 @@ namespace Math
     template<typename T>
     std::vector<Point4<T>> Ray<T>::Intersect(Object* obj)
     {
-        if (std::is_base_of_v<Sphere<T>, Object>) return IntersectSphere(*this, reinterpret_cast<Sphere<T>*>(obj));
+        if (IsA(Sphere<T>*, decltype(obj))) return IntersectSphere(*this, reinterpret_cast<Sphere<T>*>(obj));
         return std::vector<Point4<T>>();
     }
 }
@@ -143,7 +141,7 @@ namespace Math
 
         TEST_METHOD(Ray_SphereIntersection)
         {
-            auto point = H::MakePoint<float>(0.0f, 0.0f, -5.0f);
+            auto point = H::MakePoint<float>(0.0f, 1.0f, -5.0f);
             auto vector = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
             Ray<float> ray{ point, vector };
 
@@ -153,7 +151,7 @@ namespace Math
 
             auto intersectionPoints = ray.Intersect(&sphere);
             Assert::IsTrue(intersectionPoints.size() == 1);
-            Assert::IsTrue(intersectionPoints.at(0) == H::MakePoint<float>(0.0f, 0.0f, 1.0f));
+            Assert::IsTrue(intersectionPoints.at(0) == H::MakePoint<float>(0.0f, 1.0f, 0.0f));
         }
 	};
 }

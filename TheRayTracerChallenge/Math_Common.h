@@ -8,7 +8,7 @@
 #include <cassert>
 #include <functional>
 
-#define IsA(T, Y) std::is_base_of_v<T, Y>
+#define IsA(T, Y) std::is_convertible_v<T, Y>
 #define Equalsf Math::Equals<float>
 #define Equalsd Math::Equals<double>
 #define PiFloat Math::GetPi<float>()
@@ -23,8 +23,7 @@ namespace Math
 	template<typename T, size_t Size> class SquareMatrix;
 	template<typename T, size_t Size>
 	using SquareMatrixArray = std::array<std::array<SquareMatrix<T, Size - 1>, Size>, Size>;
-
-
+    
 	template <typename T>
 	struct IsComparable { constexpr static bool value = false; };
 
