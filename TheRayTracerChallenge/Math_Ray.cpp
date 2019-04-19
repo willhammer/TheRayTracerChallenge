@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Math_Ray.h"
 #include "Math_Primitives.h"
 #include "Math_Transform.h"
@@ -139,7 +139,21 @@ namespace Math
 			Assert::IsTrue(position3 == H::MakePoint<float>(4.5f, 3.0f, 4.0f));
 		}
 
-        TEST_METHOD(Ray_SphereIntersection)
+        TEST_METHOD(Ray_SphereIntersection_ZeroPoints)
+        {
+            auto point = H::MakePoint<float>(0.0f, 2.0f, -5.0f);
+            auto vector = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
+            Ray<float> ray{ point, vector };
+
+            Sphere<float> sphere;
+            sphere.SetRadius(1);
+            sphere.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 0.0f));
+
+            auto intersectionPoints = ray.Intersect(&sphere);
+            Assert::IsTrue(intersectionPoints.size() == 0);
+        }
+
+        TEST_METHOD(Ray_SphereIntersection_OnePoint)
         {
             auto point = H::MakePoint<float>(0.0f, 1.0f, -5.0f);
             auto vector = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
@@ -152,6 +166,35 @@ namespace Math
             auto intersectionPoints = ray.Intersect(&sphere);
             Assert::IsTrue(intersectionPoints.size() == 1);
             Assert::IsTrue(intersectionPoints.at(0) == H::MakePoint<float>(0.0f, 1.0f, 0.0f));
+        }
+
+        TEST_METHOD(Ray_SphereIntersection_OnePoint_FromInsideSphere)
+        {
+            auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
+            auto vector = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
+            Ray<float> ray{ point, vector };
+
+            Sphere<float> sphere;
+            sphere.SetRadius(1);
+            sphere.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 0.0f));
+
+            auto intersectionPoints = ray.Intersect(&sphere);
+            Assert::IsTrue(intersectionPoints.size() == 1);
+            Assert::IsTrue(intersectionPoints.at(0) == H::MakePoint<float>(0.0f, 0.0f, 1.0f));
+        }
+
+        TEST_METHOD(Ray_SphereIntersection_ZeroPoints_SphereBehindRay)
+        {
+            auto point = H::MakePoint<float>(0.0f, 0.0f, 5.0f);
+            auto vector = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
+            Ray<float> ray{ point, vector };
+
+            Sphere<float> sphere;
+            sphere.SetRadius(1);
+            sphere.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 0.0f));
+
+            auto intersectionPoints = ray.Intersect(&sphere);
+            Assert::IsTrue(intersectionPoints.size() == 0);
         }
 	};
 }
