@@ -96,10 +96,15 @@ namespace
 namespace Math
 {
     template<typename T>
-    std::vector<Point4<T>> Ray<T>::Intersect(Object* obj)
+    RayHit<T> Ray<T>::Intersect(Object* obj)
     {
-        if (IsA(Sphere<T>*, decltype(obj))) return IntersectSphere(*this, reinterpret_cast<Sphere<T>*>(obj));
-        return std::vector<Point4<T>>();
+		RayHit<T> hit;
+		if (IsA(Sphere<T>*, decltype(obj)))
+		{
+			hit.objectHits = IntersectSphere(*this, reinterpret_cast<Sphere<T>*>(obj));
+		}
+
+        return hit;
     }
 }
 
@@ -150,7 +155,7 @@ namespace Math
             sphere.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 0.0f));
 
             auto intersectionPoints = ray.Intersect(&sphere);
-            Assert::IsTrue(intersectionPoints.size() == 0);
+            Assert::IsTrue(intersectionPoints.objectHits.size() == 0);
         }
 
         TEST_METHOD(Ray_SphereIntersection_OnePoint)
@@ -164,8 +169,8 @@ namespace Math
             sphere.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 0.0f));
 
             auto intersectionPoints = ray.Intersect(&sphere);
-            Assert::IsTrue(intersectionPoints.size() == 1);
-            Assert::IsTrue(intersectionPoints.at(0) == H::MakePoint<float>(0.0f, 1.0f, 0.0f));
+            Assert::IsTrue(intersectionPoints.objectHits.size() == 1);
+            Assert::IsTrue(intersectionPoints.objectHits.at(0) == H::MakePoint<float>(0.0f, 1.0f, 0.0f));
         }
 
         TEST_METHOD(Ray_SphereIntersection_OnePoint_FromInsideSphere)
@@ -179,8 +184,8 @@ namespace Math
             sphere.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 0.0f));
 
             auto intersectionPoints = ray.Intersect(&sphere);
-            Assert::IsTrue(intersectionPoints.size() == 1);
-            Assert::IsTrue(intersectionPoints.at(0) == H::MakePoint<float>(0.0f, 0.0f, 1.0f));
+            Assert::IsTrue(intersectionPoints.objectHits.size() == 1);
+            Assert::IsTrue(intersectionPoints.objectHits.at(0) == H::MakePoint<float>(0.0f, 0.0f, 1.0f));
         }
 
         TEST_METHOD(Ray_SphereIntersection_ZeroPoints_SphereBehindRay)
@@ -194,7 +199,7 @@ namespace Math
             sphere.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 0.0f));
 
             auto intersectionPoints = ray.Intersect(&sphere);
-            Assert::IsTrue(intersectionPoints.size() == 0);
+            Assert::IsTrue(intersectionPoints.objectHits.size() == 0);
         }
 	};
 }

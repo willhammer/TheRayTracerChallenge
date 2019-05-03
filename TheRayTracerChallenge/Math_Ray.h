@@ -13,6 +13,18 @@ namespace Math
 {
     class Object;
 
+
+	template<typename T>
+	struct RayHit
+	{
+	public:
+		size_t objectId;
+		std::vector<Point4<T>> objectHits;
+
+		RayHit() : objectId{ size_t(-1) } { }
+	};
+
+
 	template<typename T>
 	class Ray
 	{
@@ -42,7 +54,7 @@ namespace Math
 
         void Normalize() { direction.Normalize(); }
 
-        std::vector<Point4<T>> Intersect(Object* obj);
+        RayHit<T> Intersect(Object* obj);
 
 	};
 }
