@@ -19,6 +19,10 @@ namespace Math
 	{
 	public:
 		size_t objectId;
+		std::vector<T> negativeHitDistances;
+		std::vector<Point4<T>> negativeObjectHits;
+
+		std::vector<T> hitDistances;
 		std::vector<Point4<T>> objectHits;
 
 		RayHit() : objectId{ size_t(-1) } { }

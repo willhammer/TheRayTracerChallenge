@@ -32,6 +32,8 @@ namespace Math
 	public:
 		TEST_METHOD(Object_counting)
 		{
+			Object::ResetObjectMap();
+
 			Object obj;
 			Assert::IsTrue(obj.GetObjectId() == 1);
 			Assert::IsTrue(Object::GetNumObjects() == 1);

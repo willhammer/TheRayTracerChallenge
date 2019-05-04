@@ -51,12 +51,10 @@ namespace
     }
 
     template<typename T>
-    std::vector<Math::Point4<T>> IntersectSphere(Math::Ray<T> ray, Math::Sphere<T>* obj)
+	std::vector<T> IntersectSphere(Math::Ray<T> ray, Math::Sphere<T>* obj)
     {
-        std::vector<Math::Point4<T>> intersectionPoints;
-        std::vector<T> solutions;
         if (obj == nullptr)
-            return intersectionPoints;
+            return std::vector<T>();
 
         static const auto pointZero = H::MakePoint<T>(T(0), T(0), T(0));        
         ray.Normalize();
@@ -75,20 +73,8 @@ namespace
         float a = dir.GetMagnitudeSquared();
         float b = 2 * dir.Dot(centerToRayOrigin);
         float c = centerToRayOrigin.GetMagnitudeSquared() - radiusSquared;
-        
-        solutions = SolveQuadratic(a, b, c);
-        if (solutions.empty())
-            return intersectionPoints;
-
-        for (auto& value : solutions)
-        {
-            if (value >= T(0))
-            {
-                intersectionPoints.push_back(ray.GetOrigin() + (ray.GetDirection() * value));
-            }
-        }
-
-        return intersectionPoints;
+		
+        return SolveQuadratic(a, b, c);
     }
 }
 
@@ -98,13 +84,33 @@ namespace Math
     template<typename T>
     RayHit<T> Ray<T>::Intersect(Object* obj)
     {
-		RayHit<T> hit;
+		RayHit<T> ray;
+		std::vector<T> solutions;
+
 		if (IsA(Sphere<T>*, decltype(obj)))
 		{
-			hit.objectHits = IntersectSphere(*this, reinterpret_cast<Sphere<T>*>(obj));
+			solutions = IntersectSphere(*this, reinterpret_cast<Sphere<T>*>(obj));
 		}
 
-        return hit;
+		if (solutions.empty())
+			return ray;
+
+		for (auto& value : solutions)
+		{
+			auto objectHit = this->GetOrigin() + (this->GetDirection() * value);
+			if (value >= T(0))
+			{
+				ray.hitDistances.push_back(value);
+				ray.objectHits.push_back(objectHit);
+			}
+			else
+			{
+				ray.negativeHitDistances.push_back(value);
+				ray.negativeObjectHits.push_back(objectHit);
+			}
+		}
+
+        return ray;
     }
 }
 

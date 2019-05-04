@@ -15,10 +15,14 @@ namespace Math
 	private:
 		static size_t objectIdCounter;
 		static std::unordered_map<size_t, Object*> objectMap;
-
 		size_t objectId;
 		
 	public:
+		static void ResetObjectMap()
+		{
+			objectMap.clear();
+			objectIdCounter = 0;
+		}
 
 		static size_t GetNumObjects() { return objectMap.size(); }
 		static Object* GetObjectById(size_t id) { return objectMap.at(id); }
