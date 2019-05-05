@@ -1,9 +1,6 @@
 ﻿#include "stdafx.h"
 #include "Math_Ray.h"
 #include "Math_Primitives.h"
-#include "Math_Transform.h"
-#include "Math_Tuple.h"
-#include "Math_Matrix.h"
 #include "Graphics.h"
 
 #include <vector>
@@ -59,6 +56,8 @@ namespace
         static const auto pointZero = H::MakePoint<T>(T(0), T(0), T(0));        
         ray.Normalize();
 
+		auto spherePosition = obj->GetPosition();
+
         if (!(obj->GetPosition() == pointZero))
         {
             auto positionDiff = obj->GetPosition() - pointZero;
@@ -74,6 +73,7 @@ namespace
         float b = 2 * dir.Dot(centerToRayOrigin);
         float c = centerToRayOrigin.GetMagnitudeSquared() - radiusSquared;
 		
+		obj->SetPosition(spherePosition);
         return SolveQuadratic(a, b, c);
     }
 }
@@ -112,6 +112,17 @@ namespace Math
 
         return ray;
     }
+
+	template<typename T>	
+	Ray<T> Ray<T>::Transform(Math::Transform<T>& transform)
+	{
+		Ray<T> newRay;
+		newRay.SetOrigin(this->GetOrigin() * transform);
+		newRay.SetDirection(this->GetDirection() * transform);
+
+		return newRay;
+	}
+
 }
 
 
@@ -192,6 +203,8 @@ namespace Math
             auto intersectionPoints = ray.Intersect(&sphere);
             Assert::IsTrue(intersectionPoints.objectHits.size() == 1);
             Assert::IsTrue(intersectionPoints.objectHits.at(0) == H::MakePoint<float>(0.0f, 0.0f, 1.0f));
+			Assert::IsTrue(intersectionPoints.negativeObjectHits.size() == 1);
+
         }
 
         TEST_METHOD(Ray_SphereIntersection_ZeroPoints_SphereBehindRay)
@@ -206,7 +219,66 @@ namespace Math
 
             auto intersectionPoints = ray.Intersect(&sphere);
             Assert::IsTrue(intersectionPoints.objectHits.size() == 0);
+			Assert::IsTrue(intersectionPoints.negativeObjectHits.size() == 2);
         }
+
+		TEST_METHOD(Ray_TransformRay)
+		{
+			auto point = H::MakePoint<float>(1.0f, 2.0f, 3.0f);
+			auto vector = H::MakeVector<float>(0.0f, 1.0f, 0.0f);
+			Ray<float> ray{ point, vector };
+
+			Transform<float> transform = Transform<float>::MakeTranslation(3.0f, 4.0f, 5.0f);
+			Transform<float> transform2 = Transform<float>::MakeScaling(2.0f, 3.0f, 4.0f);
+
+			auto rayTransformed = ray.Transform(transform);
+			Assert::IsTrue(rayTransformed.GetOrigin() == H::MakePoint<float>(4.0f, 6.0f, 8.0f));
+			Assert::IsTrue(rayTransformed.GetDirection() == H::MakeVector<float>(0.0f, 1.0f, 0.0f));
+
+			auto rayTransformed2 = ray.Transform(transform2);
+			Assert::IsTrue(rayTransformed2.GetOrigin() == H::MakePoint<float>(2.0f, 6.0f, 12.0f));
+			Assert::IsTrue(rayTransformed2.GetDirection() == H::MakeVector<float>(0.0f, 3.0f, 0.0f));
+		}
+
+		TEST_METHOD(Ray_SphereIntersection_DawingSphereShadowOnCanvas)
+		{
+			Color4f sphereShadowColor = H::MakeColor(1.0f, 0.0f, 0.0f, 0.5f);
+			std::vector<std::vector<Ray<float>>> rayMatrix;
+			
+			size_t width = 16 * 20;
+			size_t height = 9 * 20;
+
+			Sphere<float> sphere;
+			Graphics::Canvas canvas(width, height);
+
+			sphere.SetPosition(H::MakePoint(100.0f, 100.0f, 0.0f));
+			sphere.SetRadius(75.0f);
+
+			const Math::Vector4f rayDirection = H::MakeVector(0.0f, 0.0f, 1.0f);
+			rayMatrix.resize(height);
+
+			for (size_t i = 0; i < height; ++i)
+			{
+				rayMatrix[i].resize(width);
+
+				for (size_t j = 0; j < width; ++j)
+				{
+					rayMatrix[i][j].SetOrigin(H::MakePoint(float(i), float(j), -50.0f));
+					rayMatrix[i][j].SetDirection(rayDirection);
+					auto hit = rayMatrix[i][j].Intersect(&sphere);
+					for (auto& hitPosition : hit.objectHits)
+					{
+						auto posX = H::Get(hitPosition, C::X);
+						auto posY = H::Get(hitPosition, C::Y);
+
+						canvas.SetAt((size_t)posY, (size_t)posX, sphereShadowColor);
+					}
+				}
+			}
+
+			canvas.SetFilename("sphereShadow.ppm");
+			canvas.WritePPMFile();
+		}
 	};
 }
 

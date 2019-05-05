@@ -1,10 +1,10 @@
 #pragma once
 
-
 #include "stdafx.h"
 #include "Math_Common.h"
 #include "Math_Matrix.h"
 #include "Math_Tuple.h"
+#include "Math_Transform.h"
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -12,8 +12,7 @@
 namespace Math
 {
     class Object;
-
-
+	
 	template<typename T>
 	struct RayHit
 	{
@@ -59,6 +58,7 @@ namespace Math
         void Normalize() { direction.Normalize(); }
 
         RayHit<T> Intersect(Object* obj);
+		Ray<T> Transform(Transform<T>& transform);
 
 	};
 }
