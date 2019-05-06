@@ -22,7 +22,7 @@ namespace
     {
         std::vector<T> solutions;
 
-        T discr = b * b - T(4) * a * c;
+        T discr = (b * b) - (T(4) * a * c);
         if (discr < 0) 
             return solutions;
 
@@ -89,7 +89,7 @@ namespace Math
 
 		if (IsA(Sphere<T>*, decltype(obj)))
 		{
-			solutions = IntersectSphere(*this, reinterpret_cast<Sphere<T>*>(obj));
+			solutions = IntersectSphere(*this, (Sphere<T>*)(obj));
 		}
 
 		if (solutions.empty())

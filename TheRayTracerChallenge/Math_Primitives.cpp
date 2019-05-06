@@ -21,6 +21,12 @@ namespace Math
 {
     size_t Object::objectIdCounter = 0;
     std::unordered_map<size_t, Object*> Object::objectMap = std::unordered_map<size_t, Object*>();
+    
+    template<typename T>
+    Vector4<T> Sphere<T>::GetNormalAtPoint(const Point4<T>& point)
+    {
+        return point - this->GetPosition();
+    }
 }
 
 #pragma region tests here
@@ -65,7 +71,16 @@ namespace Math
             Assert::IsTrue(sphere2.GetRadius() == 15.0f);
             Assert::IsTrue(sphere2.GetPosition() == H::MakePoint(2.0f, 3.0f, 4.0f));
 		}
+        
+        TEST_METHOD(Sphere_Normal)
+        {
+            Sphere<float> sphere(1.0f, H::MakePoint(0.0f, 0.0f, 0.0f));
+            auto point = H::MakePoint(1.0f, 0.0f, 0.0f);
 
+            auto normalVec = sphere.GetNormalAtPoint(point);
+            Assert::IsTrue(normalVec == H::MakeVector(1.0f, 0.0f, 0.0f));
+        }
+        
 	};
 
 	TEST_CLASS(TestMathPrimitives_Cube)

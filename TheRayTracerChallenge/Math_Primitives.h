@@ -10,6 +10,13 @@
 
 namespace Math
 {
+    template<typename T>
+    class IRenderData
+    {
+    public:
+        virtual Vector4<T> GetNormalAtPoint(const Point4<T>& point) = 0;        
+    };
+
 	class Object
 	{
 	private:
@@ -40,11 +47,10 @@ namespace Math
 		}
 
 		size_t GetObjectId() { return objectId; }
-
 	};
 	
 	template<typename T>
-	class Sphere : public Object
+	class Sphere : public Object, IRenderData<T>
 	{
 	private:
 		T radius;
@@ -59,5 +65,7 @@ namespace Math
 
         void SetRadius(const T setRadius) { radius = setRadius; }
         void SetPosition(const Point4<T>& setPosition) { position = setPosition; }
+
+        Vector4<T> GetNormalAtPoint(const Point4<T>& point) override;
 	};
 }
