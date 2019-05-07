@@ -128,12 +128,12 @@ namespace Math
 			transposed ? SetOriginalValueAt(column, line, value) : SetOriginalValueAt(line, column, value);
 		}
 
-		const T& GetValueAt(size_t line, size_t column)
+		const T& GetValueAt(size_t line, size_t column) const
 		{
 			return transposed ? contents[column][line] : contents[line][column];
 		}
 
-		const T& GetOriginalValueAt(size_t line, size_t column)
+		const T& GetOriginalValueAt(size_t line, size_t column) const
 		{
 			return contents[line][column];
 		}

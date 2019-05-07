@@ -53,7 +53,7 @@ namespace
         if (obj == nullptr)
             return std::vector<T>();
 
-        static const auto pointZero = H::MakePoint<T>(T(0), T(0), T(0));        
+        static const auto pointZero = H::MakePoint<T>(T(0), T(0), T(0));
         ray.Normalize();
 
 		auto spherePosition = obj->GetPosition();

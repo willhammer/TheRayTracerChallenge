@@ -94,74 +94,7 @@ namespace
 }
 
 namespace Math
-{
-	template<typename T>
-	Transform<T> operator*(Transform<T>& transform1, Transform<T>& transform2)
-	{
-		return GetMultipliedContents(transform1, transform2);
-	}
-
-	template<typename T>
-	Transform<T> operator+(Transform<T>& transform1, Transform<T>& transform2)
-	{
-		return GetAddedContents(transform1, transform2);
-	}
-
-	template<typename T>
-	bool operator== (Math::Transform<T>& transform1, Math::Transform<T>& transform2)
-	{
-		return CheckEquals(transform1, transform2);
-	}
-
-	template<typename T>
-	Transform<T> Transform<T>::GetTranslation()
-	{
-		Transform<T> translation = Transform<T>::Identity();
-		translation.SetOriginalValueAt(3, 0, GetValueAt(3, 0));
-		translation.SetOriginalValueAt(3, 1, GetValueAt(3, 1));
-		translation.SetOriginalValueAt(3, 2, GetValueAt(3, 2));
-		translation.SetOriginalValueAt(3, 3, GetValueAt(3, 3));
-
-		return translation;
-	}
-
-	template<typename T>
-	Transform<T> Transform<T>::GetRotation()
-	{
-		Transform<T> rotation = *this;
-		for (size_t i = 0; i < 3; ++i)
-		{
-			for (size_t j = 0; j < 3; ++j)
-			{
-				rotation.SetOriginalValueAt(i, j, this->GetValueAt(i, j));
-			}
-		}
-
-		return rotation;
-	}
-
-	template<typename T>
-	void Transform<T>::SetTranslation(const Transform<T>& transformOther)
-	{
-		this->SetOriginalValueAt(3, 0, transformOther.GetValueAt(3, 0));
-		this->SetOriginalValueAt(3, 1, transformOther.GetValueAt(3, 1));
-		this->SetOriginalValueAt(3, 2, transformOther.GetValueAt(3, 2));
-		this->SetOriginalValueAt(3, 3, transformOther.GetValueAt(3, 3));
-	}
-
-	template<typename T>
-	void Transform<T>::SetRotation(const Transform<T>& transformOther)
-	{
-		for (size_t i = 0; i < 3; ++i)
-		{
-			for (size_t j = 0; j < 3; ++j)
-			{
-				this->SetOriginalValueAt(i, j, t transformOther.GetValueAt(i, j));
-			}
-		}
-	}
-
-
+{   
 	template<typename T>
 	Transform<T> Transform<T>::MakeTranslation(const T x, const T y, const T z)
 	{

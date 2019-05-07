@@ -26,12 +26,49 @@ namespace Math
 			return identity;
 		}
 		
-		Transform<T> GetTranslation();
-		Transform<T> GetRotation();
+        Transform<T> GetTranslation()
+        {
+            Transform<T> translation = Transform<T>::Identity();
+            translation.SetOriginalValueAt(3, 0, GetValueAt(3, 0));
+            translation.SetOriginalValueAt(3, 1, GetValueAt(3, 1));
+            translation.SetOriginalValueAt(3, 2, GetValueAt(3, 2));
+            translation.SetOriginalValueAt(3, 3, GetValueAt(3, 3));
 
-		void SetTranslation(const Transform<T>& transformOther);
-		void SetRotation(const Transform<T>& transformOther);
+            return translation;
+        }
+                
+        Transform<T> GetRotation()
+        {
+            Transform<T> rotation = *this;
+            for (size_t i = 0; i < 3; ++i)
+            {
+                for (size_t j = 0; j < 3; ++j)
+                {
+                    rotation.SetOriginalValueAt(i, j, this->GetValueAt(i, j));
+                }
+            }
 
+            return rotation;
+        }
+                
+        void SetTranslation(const Transform<T>& transformOther)
+        {
+            this->SetOriginalValueAt(3, 0, transformOther.GetValueAt(3, 0));
+            this->SetOriginalValueAt(3, 1, transformOther.GetValueAt(3, 1));
+            this->SetOriginalValueAt(3, 2, transformOther.GetValueAt(3, 2));
+            this->SetOriginalValueAt(3, 3, transformOther.GetValueAt(3, 3));
+        }
+                
+        void SetRotation(const Transform<T>& transformOther)
+        {
+            for (size_t i = 0; i < 3; ++i)
+            {
+                for (size_t j = 0; j < 3; ++j)
+                {
+                    this->SetOriginalValueAt(i, j, t transformOther.GetValueAt(i, j));
+                }
+            }
+        }
 		static Transform<T> MakeTranslation(const T x, const T y, const T z);
 		static Transform<T> MakeScaling(const T x, const T y, const T z);
 		static Transform<T> MakeRotation(const T angleX, const T angleY, const T angleZ);
@@ -62,14 +99,23 @@ namespace Math
 
 	
 #pragma region operators
-	template<typename T, size_t Size>
-	Transform<T> operator*(Transform<T>& first, Transform<T>& second);
+    template<typename T>
+    Transform<T> operator*(Transform<T>& transform1, Transform<T>& transform2)
+    {
+        return GetMultipliedContents(transform1, transform2);
+    }
 
-	template<typename T, size_t Size>
-	Math::Transform<T>	operator+(Math::Transform<T>& first, Math::Transform<T>& second);
+    template<typename T>
+    Transform<T> operator+(Transform<T>& transform1, Transform<T>& transform2)
+    {
+        return GetAddedContents(transform1, transform2);
+    }
 
-	template<typename T, size_t Size>
-	bool operator== (Math::Transform<T>& first, Math::Transform<T>& second);
+    template<typename T>
+    bool operator== (Math::Transform<T>& transform1, Math::Transform<T>& transform2)
+    {
+        return CheckEquals(transform1, transform2);
+    }
 #pragma endregion
 
 };

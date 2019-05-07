@@ -5,6 +5,7 @@
 #include "Math_Common.h"
 #include "Math_Matrix.h"
 #include "Math_Tuple.h"
+#include "Math_Transform.h"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -13,8 +14,13 @@ namespace Math
     template<typename T>
     class IRenderData
     {
+    protected:
+        Transform<T> transform;
+
     public:
-        virtual Vector4<T> GetNormalAtPoint(const Point4<T>& point) = 0;        
+        virtual Vector4<T> GetNormalAtPoint(const Point4<T>& point) = 0;
+        Transform<T> GetTransform() { return transform; }
+        void SetTransform(const Transform<T>& setTransform) { transform = setTransform; }
     };
 
 	class Object
@@ -50,14 +56,18 @@ namespace Math
 	};
 	
 	template<typename T>
-	class Sphere : public Object, IRenderData<T>
+	class Sphere : public Object, public IRenderData<T>
 	{
 	private:
 		T radius;
 		Point4<T> position;
 
 	public:
-		Sphere() : radius{0}, position{H::MakePoint(T(0), T(0), T(0))}{	}
+		Sphere() : radius{0}, position{H::MakePoint(T(0), T(0), T(0))}
+        {
+            SetTransform(Transform<T>::Identity());
+        }
+
 		Sphere(T setRadius, Point4<T> setPosition) : radius{setRadius}, position{setPosition}{ }
 
         T GetRadius() { return radius; }
