@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Math_Primitives.h"
+
 #include "Math_Ray.h"
 #include "Graphics.h"
 
@@ -13,6 +14,8 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using H = Math::Helpers;
 using C = Math::Helpers::Coordinate;
 using CI = Math::Helpers::ColorInput;
+
+
 
 namespace Math
 {
@@ -133,7 +136,6 @@ namespace Math
 
 		}
 	};
-
 }
 #endif
 

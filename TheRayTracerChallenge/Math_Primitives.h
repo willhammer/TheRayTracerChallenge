@@ -6,23 +6,13 @@
 #include "Math_Matrix.h"
 #include "Math_Tuple.h"
 #include "Math_Transform.h"
+#include "Math_Materials.h"
+#include "Math_Ray.h"
 #include <unordered_map>
 #include <unordered_set>
 
 namespace Math
 {
-    template<typename T>
-    class IRenderData
-    {
-    protected:
-        Transform<T> transform;
-
-    public:
-        virtual Vector4<T> GetNormalAtPoint(const Point4<T>& point) = 0;
-        Transform<T> GetTransform() { return transform; }
-        void SetTransform(const Transform<T>& setTransform) { transform = setTransform; }
-    };
-
 	class Object
 	{
 	private:
