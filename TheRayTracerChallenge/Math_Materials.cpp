@@ -23,12 +23,20 @@ namespace
 	}
 }
 
+namespace Math
+{
+	
+
+
+}
+
+
 #pragma region tests here
 #ifdef _MSC_VER
 namespace Math
 {
 
-	TEST_CLASS(TestReflect)
+	TEST_CLASS(TestMaterials)
 	{
 	public:
 		TEST_METHOD(Ray_Reflect)
@@ -45,6 +53,29 @@ namespace Math
 			normal = H::MakeVector<float>(sqrt2Over2, sqrt2Over2, 0.0f);
 			vectorReflected = Reflect<float>(vector, normal);
 			Assert::IsTrue(vectorReflected == H::MakeVector(1.0f, 0.0f, 0.0f));
+		}
+
+		TEST_METHOD(Material)
+		{
+			PhongMaterial<float> material1{ 0.1f, 0.9f, 0.9f, 200.0f };
+			PhongMaterial<float> material2;
+
+			material2.SetValue(PhongValueType::Ambient, 0.1f);
+			material2.SetValue(PhongValueType::Diffuse, 0.9f);
+			material2.SetValue(PhongValueType::Specular, 0.9f);
+			material2.SetValue(PhongValueType::Shininess, 200.0f);
+
+			Assert::IsTrue(material1.GetValue(PhongValueType::Ambient) == 0.1f);
+			Assert::IsTrue(material2.GetValue(PhongValueType::Ambient) == 0.1f);
+
+			Assert::IsTrue(material1.GetValue(PhongValueType::Diffuse) == 0.9f);
+			Assert::IsTrue(material2.GetValue(PhongValueType::Diffuse) == 0.9f);
+
+			Assert::IsTrue(material1.GetValue(PhongValueType::Specular) == 0.9f);
+			Assert::IsTrue(material2.GetValue(PhongValueType::Specular) == 0.9f);
+
+			Assert::IsTrue(material1.GetValue(PhongValueType::Shininess) == 200.0f);
+			Assert::IsTrue(material2.GetValue(PhongValueType::Shininess) == 200.0f);
 		}
 	};
 }

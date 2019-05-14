@@ -84,6 +84,16 @@ namespace Math
             Assert::IsTrue(sphere2.GetPosition() == H::MakePoint(2.0f, 3.0f, 4.0f));
 		}
         
+		TEST_METHOD(Sphere_Material)
+		{
+			Sphere<float> sphere;
+			sphere.SetMaterial(new PhongMaterial<float>());
+			auto material = sphere.GetMaterial();
+			auto materialAsPhong = dynamic_cast<PhongMaterial<float>*>(material.get());
+			Assert::IsTrue(materialAsPhong != nullptr);
+			Assert::IsTrue(materialAsPhong->GetValue(PhongValueType::Ambient) == 0.0f);
+		}
+
         TEST_METHOD(Sphere_Normal)
         {
             Sphere<float> sphere(1.0f, H::MakePoint(0.0f, 0.0f, 0.0f));
