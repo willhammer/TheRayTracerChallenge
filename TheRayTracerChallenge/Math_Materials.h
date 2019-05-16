@@ -15,9 +15,48 @@ namespace Math
 	template<typename T>
 	class ILight
 	{
-	private:
+	protected:
 		Point4<T> position;
-		T intensity;
+		Color4<T> intensity;
+
+	public:
+		void SetPosition(const Point4<T>& setPosition) { position = setPosition; }
+		Point4<T> GetPosition() { return position; }
+
+		void SetIntensity(const Color4<T>& setIntensity) { intensity = setIntensity; }
+		Color4<T> GetIntensity() { return intensity; }
+
+		ILight(const Point4<T>& setPosition, const Color4<T>& setIntensity) : 
+			position(setPosition),
+			intensity(setIntensity)
+		{
+
+		}
+
+		ILight() : ILight(H::MakePoint<T>(T(0), T(0), T(0)), H::MakeColor<T>(T(0), T(0), T(0), T(0)))
+		{
+			
+		}
+	};
+
+
+	template<typename T>
+	class LightOmni : public ILight<T>
+	{
+	public:
+
+		LightOmni() : ILight<T>()
+		{
+
+		}
+
+		LightOmni(const Point4<T>& setPosition, const Color4<T>& setIntensity) : ILight<T>(position, intensity)
+			
+		{
+			
+		}
+
+
 	};
 
 	template<typename T>

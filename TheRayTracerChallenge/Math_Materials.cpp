@@ -21,6 +21,22 @@ namespace
 	{
 		return vector - normal * (T(2) * vector.Dot(normal));
 	}
+
+	template<typename T>
+	Math::Color4<T> GetColorOnMaterialAtPoint
+	(
+		const Math::Point4<T>& point, 
+		const Math::Vector4<T>& surfaceNormal,
+		const Math::IMaterial<T>& material,
+		const Math::ILight<T>& light,
+		const Math::Point4<T>& eyePosition,
+		const Math::Vector4<T>& eyeOrientation
+	)
+	{
+		return H::MakeColor<T>(T(0), T(0), T(0), T(0));
+	}
+
+
 }
 
 namespace Math
@@ -55,6 +71,17 @@ namespace Math
 			Assert::IsTrue(vectorReflected == H::MakeVector(1.0f, 0.0f, 0.0f));
 		}
 
+		TEST_METHOD(Light)
+		{
+			auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
+			auto color = H::MakeColor<float>(1.0f, 1.0f, 1.0f, 0.5f);
+
+			LightOmni<float> omni(point, color);
+
+			Assert::IsTrue(omni.GetIntensity() == color);
+			Assert::IsTrue(omni.GetPosition() == point);
+		}
+
 		TEST_METHOD(Material)
 		{
 			PhongMaterial<float> material1{ 0.1f, 0.9f, 0.9f, 200.0f };
@@ -76,6 +103,23 @@ namespace Math
 
 			Assert::IsTrue(material1.GetValue(PhongValueType::Shininess) == 200.0f);
 			Assert::IsTrue(material2.GetValue(PhongValueType::Shininess) == 200.0f);
+		}
+
+		TEST_METHOD(Material_Color_With_Light)
+		{
+			auto eyePosition = H::MakePoint<float>(0.0f, 0.0f, -1.0f);
+			auto eyeOrientation = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
+			
+			auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
+			auto normalAtPoint = H::MakeVector<float>(0.0f, 0.0f, -1.0f);
+
+			auto light = LightOmni<float>();
+			light.SetIntensity(H::MakeColor<float>(1.0f, 1.0f, 1.0f));
+			light.SetPosition(H::MakePoint<float>(0.0f, 0.0f, -10.0f));
+
+			auto material = PhongMaterial<float>();
+
+			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(1.9f, 1.9f, 1.9f));
 		}
 	};
 }

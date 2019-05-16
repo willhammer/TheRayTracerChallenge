@@ -106,6 +106,7 @@ namespace Math
 		template<typename T> static Point4<T> MakePoint(const T& x, const T& y, const T& z);
 		template<typename T> static Vector4<T> MakeVector(const T& x, const T& y, const T& z);
 		template<typename T> static Color4<T> MakeColor(const T& r, const T& g, const T& b, const T& a);
+		template<typename T> static Color4<T> MakeColor(const T& r, const T& g, const T& b);
 
 		template<typename T> static Point4<T> MakePoint(const Tuple4<T>& tuple);
 		template<typename T> static Vector4<T> MakeVector(const Tuple4<T>& tuple);

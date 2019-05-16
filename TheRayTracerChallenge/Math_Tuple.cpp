@@ -243,6 +243,11 @@ namespace Math
 		return Color4<T>{ r, g, b, a };
 	}
 
+	template<typename T> Color4<T> Helpers::MakeColor(const T& r, const T& g, const T& b)
+	{
+		return Color4<T>{ r, g, b, T(0.5)};
+	}
+
 	template<typename T> Point4<T> Helpers::MakePoint(const Tuple4<T>& tuple)
 	{
 		return Point4<T>(tuple);
@@ -519,6 +524,13 @@ namespace Math
 			Assert::IsTrue(Equalsf(H::Get(color1, CI::G), 0.4f));
 			Assert::IsTrue(Equalsf(H::Get(color1, CI::B), 1.7f));
 			Assert::IsTrue(Equalsf(H::Get(color1, CI::A), 0.5f));
+
+			const auto color2 = H::MakeColor<float>(-0.5f, 0.4f, 1.7f);
+
+			Assert::IsTrue(Equalsf(H::Get(color2, CI::R), -0.5f));
+			Assert::IsTrue(Equalsf(H::Get(color2, CI::G), 0.4f));
+			Assert::IsTrue(Equalsf(H::Get(color2, CI::B), 1.7f));
+			Assert::IsTrue(Equalsf(H::Get(color2, CI::A), 0.5f));
 		}
 
 		TEST_METHOD(Color4Addition)
