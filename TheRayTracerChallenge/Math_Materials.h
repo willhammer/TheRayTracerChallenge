@@ -21,22 +21,10 @@ namespace Math
 
 	public:
 		void SetPosition(const Point4<T>& setPosition) { position = setPosition; }
-		Point4<T> GetPosition() { return position; }
+		Point4<T> GetPosition() const { return position; }
 
 		void SetIntensity(const Color4<T>& setIntensity) { intensity = setIntensity; }
-		Color4<T> GetIntensity() { return intensity; }
-
-		ILight(const Point4<T>& setPosition, const Color4<T>& setIntensity) : 
-			position(setPosition),
-			intensity(setIntensity)
-		{
-
-		}
-
-		ILight() : ILight(H::MakePoint<T>(T(0), T(0), T(0)), H::MakeColor<T>(T(0), T(0), T(0), T(0)))
-		{
-			
-		}
+		Color4<T> GetIntensity() const { return intensity; }
 	};
 
 
@@ -45,18 +33,17 @@ namespace Math
 	{
 	public:
 
-		LightOmni() : ILight<T>()
+		LightOmni()
 		{
-
+			SetPosition(H::MakePoint<T>(0.0f, 0.0f, 0.0f));
+			SetIntensity(H::MakeColor<T>(0.0f, 0.0f, 0.0f, 0.5f));
 		}
 
-		LightOmni(const Point4<T>& setPosition, const Color4<T>& setIntensity) : ILight<T>(position, intensity)
-			
+		LightOmni(const Point4<T>& setPosition, const Color4<T>& setIntensity)
 		{
-			
+			SetPosition(setPosition);
+			SetIntensity(setIntensity); 
 		}
-
-
 	};
 
 	template<typename T>
@@ -66,7 +53,7 @@ namespace Math
 		Color4<T> color;
 	public:
 		void SetColor(const Color4<T>& setColor) { color = setColor; }
-		Color4<T> GetColor() { return color; }
+		Color4<T> GetColor() const { return color; }
 		virtual Ray<T> Reflect(const Ray<T>& ray) { return Ray<T>(); }
 	};
 
@@ -79,11 +66,11 @@ namespace Math
 
 	public:
 		virtual Vector4<T> GetNormalAtPoint(const Point4<T>& point) = 0;
-		Transform<T> GetTransform() { return transform; }
+		Transform<T> GetTransform() const { return transform; }
 		void SetTransform(const Transform<T>& setTransform) { transform = setTransform; }	
 
 		void SetMaterial(IMaterial<T>* setMaterial) { material.reset(setMaterial); }
-		std::shared_ptr<IMaterial<T>> GetMaterial() { return material; }		
+		std::shared_ptr<IMaterial<T>> GetMaterial() const { return material; }
 	};
 
 	enum class PhongValueType : int
@@ -151,6 +138,18 @@ namespace Math
 		T GetValue(const PhongValueType valueType)
 		{
 			return GetValueByType(valueType);
+		}
+
+		static PhongMaterial<T>* GetDefaultMaterial()
+		{
+			PhongMaterial<T>* material = new PhongMaterial<T>();
+			material->SetColor(H::MakeColor<T>((T)1.0, (T)1.0, (T)1.0, (T)0.5));
+			material->SetValue(PhongValueType::Ambient, (T)0.1);
+			material->SetValue(PhongValueType::Diffuse, (T)0.9);
+			material->SetValue(PhongValueType::Specular, (T)0.9);
+			material->SetValue(PhongValueType::Shininess, (T)200.0);
+
+			return material;
 		}
 	};
 }

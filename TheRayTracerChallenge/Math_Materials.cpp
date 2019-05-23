@@ -27,16 +27,39 @@ namespace
 	(
 		const Math::Point4<T>& point, 
 		const Math::Vector4<T>& surfaceNormal,
-		const Math::IMaterial<T>& material,
+		Math::IMaterial<T>* material,
 		const Math::ILight<T>& light,
 		const Math::Point4<T>& eyePosition,
 		const Math::Vector4<T>& eyeOrientation
 	)
 	{
-		return H::MakeColor<T>(T(0), T(0), T(0), T(0));
+		Math::PhongMaterial<T>* materialAsPhong = dynamic_cast<Math::PhongMaterial<T>*>(material);
+		if (materialAsPhong == nullptr)
+			return H::MakeColor(0.0f, 0.0f, 0.0f, 0.5f);
+
+		auto effective_color = materialAsPhong->GetColor() * light.GetIntensity();
+		auto pointToLightDirection = light.GetPosition() - point;
+		pointToLightDirection.Normalize();
+
+		auto ambient = effective_color * materialAsPhong->GetValue(Math::PhongValueType::Ambient);		
+		auto diffuse = H::MakeColor<T>(0.0f, 0.0f, 0.0f);
+		auto specular = H::MakeColor<T>(0.0f, 0.0f, 0.0f);
+		
+		auto light_dot_normal = pointToLightDirection.Dot(surfaceNormal);
+		if (light_dot_normal >= 0.0f)
+		{
+			diffuse = effective_color * materialAsPhong->GetValue(Math::PhongValueType::Diffuse) * light_dot_normal;
+			auto reflectionVector = Reflect(pointToLightDirection * -1.0f, surfaceNormal);
+			auto reflection_dot_eye = reflectionVector.Dot(eyeOrientation * -1.0f);
+			if (reflection_dot_eye > 0.0f)
+			{
+				auto specularFactor = (T)pow(reflection_dot_eye, materialAsPhong->GetValue(Math::PhongValueType::Shininess));
+				specular = light.GetIntensity() * materialAsPhong->GetValue(Math::PhongValueType::Specular) * specularFactor;
+			}
+		}
+
+		return ambient + diffuse + specular;
 	}
-
-
 }
 
 namespace Math
@@ -105,7 +128,7 @@ namespace Math
 			Assert::IsTrue(material2.GetValue(PhongValueType::Shininess) == 200.0f);
 		}
 
-		TEST_METHOD(Material_Color_With_Light)
+		TEST_METHOD(PhongColor_Light_EyeBetweenLightAndPoint)
 		{
 			auto eyePosition = H::MakePoint<float>(0.0f, 0.0f, -1.0f);
 			auto eyeOrientation = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
@@ -117,9 +140,76 @@ namespace Math
 			light.SetIntensity(H::MakeColor<float>(1.0f, 1.0f, 1.0f));
 			light.SetPosition(H::MakePoint<float>(0.0f, 0.0f, -10.0f));
 
-			auto material = PhongMaterial<float>();
+			auto material = PhongMaterial<float>::GetDefaultMaterial();
+			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(1.9f, 1.9f, 1.9f));		
+		}
 
-			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(1.9f, 1.9f, 1.9f));
+		TEST_METHOD(PhongColor_Light_EyeAt45Angle)
+		{
+			static const float sqrt2Over2 = sqrt(2.0f) / 2.0f;
+			auto eyePosition = H::MakePoint<float>(0.0f, -sqrt2Over2, sqrt2Over2);
+			auto eyeOrientation = H::MakeVector<float>(0.0f, sqrt2Over2, -sqrt2Over2);
+
+			auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
+			auto normalAtPoint = H::MakeVector<float>(0.0f, 0.0f, -1.0f);
+
+			auto light = LightOmni<float>();
+			light.SetIntensity(H::MakeColor<float>(1.0f, 1.0f, 1.0f));
+			light.SetPosition(H::MakePoint<float>(0.0f, 0.0f, -10.0f));
+
+			auto material = PhongMaterial<float>::GetDefaultMaterial();
+			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(1.0f, 1.0f, 1.0f));
+		}
+
+		TEST_METHOD(PhongColor_Light_LightAt45Angle)
+		{
+			static const float sqrt2Over2 = sqrt(2.0f) / 2.0f;
+			auto eyePosition = H::MakePoint<float>(0.0f, 0.0f, -1.0f);
+			auto eyeOrientation = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
+
+			auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
+			auto normalAtPoint = H::MakeVector<float>(0.0f, 0.0f, -1.0f);
+
+			auto light = LightOmni<float>();
+			light.SetIntensity(H::MakeColor<float>(1.0f, 1.0f, 1.0f));
+			light.SetPosition(H::MakePoint<float>(0.0f, 10.0f, -10.0f));
+
+			auto material = PhongMaterial<float>::GetDefaultMaterial();
+			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(0.7364f, 0.7364f, 0.7364f));
+		}
+
+		TEST_METHOD(PhongColor_Light_LightAt45Angle_And_EyeAt45Angle)
+		{
+			static const float sqrt2Over2 = sqrt(2.0f) / 2.0f;
+			auto eyePosition = H::MakePoint<float>(0.0f, -sqrt2Over2, sqrt2Over2);
+			auto eyeOrientation = H::MakeVector<float>(0.0f, sqrt2Over2, -sqrt2Over2);
+
+			auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
+			auto normalAtPoint = H::MakeVector<float>(0.0f, 0.0f, -1.0f);
+
+			auto light = LightOmni<float>();
+			light.SetIntensity(H::MakeColor<float>(1.0f, 1.0f, 1.0f));
+			light.SetPosition(H::MakePoint<float>(0.0f, 10.0f, -10.0f));
+
+			auto material = PhongMaterial<float>::GetDefaultMaterial();
+			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(1.6364f, 1.6364f, 1.6364f));
+		}
+
+		TEST_METHOD(PhongColor_Light_LightBehindPoint)
+		{
+			static const float sqrt2Over2 = sqrt(2.0f) / 2.0f;
+			auto eyePosition = H::MakePoint<float>(0.0f, 0.0f, -1.0f);
+			auto eyeOrientation = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
+
+			auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
+			auto normalAtPoint = H::MakeVector<float>(0.0f, 0.0f, -1.0f);
+
+			auto light = LightOmni<float>();
+			light.SetIntensity(H::MakeColor<float>(1.0f, 1.0f, 1.0f));
+			light.SetPosition(H::MakePoint<float>(0.0f, 0.0f, 10.0f));
+
+			auto material = PhongMaterial<float>::GetDefaultMaterial();
+			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(0.1f, 0.1f, 0.1f));
 		}
 	};
 }
