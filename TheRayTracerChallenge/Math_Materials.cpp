@@ -162,8 +162,7 @@ namespace Math
 		}
 
 		TEST_METHOD(PhongColor_Light_LightAt45Angle)
-		{
-			static const float sqrt2Over2 = sqrt(2.0f) / 2.0f;
+		{	
 			auto eyePosition = H::MakePoint<float>(0.0f, 0.0f, -1.0f);
 			auto eyeOrientation = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
 
@@ -175,14 +174,15 @@ namespace Math
 			light.SetPosition(H::MakePoint<float>(0.0f, 10.0f, -10.0f));
 
 			auto material = PhongMaterial<float>::GetDefaultMaterial();
-			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(0.7364f, 0.7364f, 0.7364f));
+			auto colorOnMaterialAtPoint = GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation);
+			Assert::IsTrue(colorOnMaterialAtPoint == H::MakeColor<float>(0.736396074f, 0.736396074f, 0.736396074f));
 		}
 
 		TEST_METHOD(PhongColor_Light_LightAt45Angle_And_EyeAt45Angle)
 		{
 			static const float sqrt2Over2 = sqrt(2.0f) / 2.0f;
-			auto eyePosition = H::MakePoint<float>(0.0f, -sqrt2Over2, sqrt2Over2);
-			auto eyeOrientation = H::MakeVector<float>(0.0f, sqrt2Over2, -sqrt2Over2);
+			auto eyePosition = H::MakePoint<float>(0.0f, -sqrt2Over2, -sqrt2Over2);
+			auto eyeOrientation = H::MakeVector<float>(0.0f, sqrt2Over2, sqrt2Over2);
 
 			auto point = H::MakePoint<float>(0.0f, 0.0f, 0.0f);
 			auto normalAtPoint = H::MakeVector<float>(0.0f, 0.0f, -1.0f);
@@ -192,7 +192,8 @@ namespace Math
 			light.SetPosition(H::MakePoint<float>(0.0f, 10.0f, -10.0f));
 
 			auto material = PhongMaterial<float>::GetDefaultMaterial();
-			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(1.6364f, 1.6364f, 1.6364f));
+			auto colorOnMaterialAtPoint = GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation);
+			Assert::IsTrue(colorOnMaterialAtPoint == H::MakeColor<float>(1.63638532f, 1.63638532f, 1.63638532f));
 		}
 
 		TEST_METHOD(PhongColor_Light_LightBehindPoint)
