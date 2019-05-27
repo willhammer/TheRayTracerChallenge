@@ -2,6 +2,9 @@
 #include "Math_Materials.h"
 #include "Math_Ray.h"
 #include "Graphics.h"
+#include "Math_Primitives.h"
+#include "Math_Tuple.h"
+#include "Math_Matrix.h"
 
 #include <cmath>
 
@@ -211,6 +214,64 @@ namespace Math
 
 			auto material = PhongMaterial<float>::GetDefaultMaterial();
 			Assert::IsTrue(GetColorOnMaterialAtPoint<float>(point, normalAtPoint, material, light, eyePosition, eyeOrientation) == H::MakeColor<float>(0.1f, 0.1f, 0.1f));
+		}
+
+		TEST_METHOD(Phong_Color_Sphere)
+		{
+			Sphere<float> sphere;
+			sphere.SetPosition(H::MakePoint(100.0f, 150.0f, 0.0f));
+			sphere.SetRadius(80.0f);
+
+			sphere.SetMaterial(PhongMaterial<float>::GetDefaultMaterial());
+			sphere.GetMaterial()->SetColor(H::MakeColor<float>(1.0f, 0.2f, 1.0f));
+
+			LightOmni<float> light;
+			light.SetPosition(H::MakePoint<float>(-10.0f, -10.0f, -100.0f));
+			light.SetIntensity(H::MakeColor<float>(1.0f, 1.0f, 1.0f));
+			
+			auto eyePosition = sphere.GetPosition() - H::MakeVector<float>(0.0f, 0.0f, 1000.0f);
+			auto eyeOrientation = H::MakeVector<float>(0.0f, 0.0f, 1.0f);
+			
+			std::vector<std::vector<Ray<float>>> rayMatrix;
+			size_t width = 160 * 2;
+			size_t height = 90 * 2;
+
+			Graphics::Canvas canvas(width, height);
+			
+			Math::Vector4f rayDirection = H::MakeVector(0.0f, 0.0f, 1.0f);
+			
+			rayMatrix.resize(height);
+			for (size_t i = 0; i < height; ++i)
+			{
+				rayMatrix[i].resize(width);
+				for (size_t j = 0; j < width; ++j)
+				{
+					rayDirection = H::MakePoint(float(i), float(j), 0.0f) - eyePosition;
+					rayDirection.Normalize();
+
+					rayMatrix[i][j].SetOrigin(eyePosition);
+					rayMatrix[i][j].SetDirection(rayDirection);
+
+					eyeOrientation = rayDirection * 1.0f;
+					
+					auto hit = rayMatrix[i][j].Intersect(&sphere);
+					if (hit.objectHits.size() > 0)
+					{
+						auto hitPosition = hit.objectHits[0];
+						auto normal = sphere.GetNormalAtPoint(hitPosition);
+
+						auto color = GetColorOnMaterialAtPoint(hitPosition, normal, sphere.GetMaterial().get(), light, eyePosition, eyeOrientation);
+
+						auto posX = H::Get(hitPosition, C::X);
+						auto posY = H::Get(hitPosition, C::Y);
+
+						canvas.SetAt((size_t)posX, (size_t)posY, color);
+					}
+				}
+			}
+
+			canvas.SetFilename("sphereLighting.ppm");
+			canvas.WritePPMFile();
 		}
 	};
 }
